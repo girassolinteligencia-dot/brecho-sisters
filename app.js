@@ -16,7 +16,10 @@ const DEFAULT_CONFIG = {
   deliveryFee: 5.00,
   pixKey: 'sisters.brecho@exemplo.com.br',
   pixName: 'Ana & Clara Brechó Sisters',
-  adminPassword: 'sisters123'
+  adminPassword: 'sisters123',
+  videoUrl: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85',
+  welcomeMsg: 'Oi, bem-vindo ao Brechó Sisters! 💕 Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀',
+  deliveryRules: '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 5km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 5km, consulte frete especial diretamente com as Sisters no WhatsApp.'
 };
 
 const DEFAULT_PRODUCTS = [
@@ -289,11 +292,33 @@ function setupEventListeners() {
     if (window.location.hash === '#admin') openAdminModal();
   });
 
-  // Banner de Entrega
-  document.getElementById('btn-banner-delivery').addEventListener('click', () => {
-    openCartModal();
-    selectDeliveryOption('delivery');
-  });
+  // Banner de Entrega & Botão de Regras (Abre o Modal Exclusivo de Regras)
+  const bannerDelivery = document.getElementById('btn-banner-delivery');
+  if (bannerDelivery) {
+    bannerDelivery.addEventListener('click', () => {
+      openDeliveryRulesModal();
+    });
+  }
+  const btnTriggerRules = document.getElementById('btn-trigger-rules');
+  if (btnTriggerRules) {
+    btnTriggerRules.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openDeliveryRulesModal();
+    });
+  }
+
+  // Botão Pílula: Vídeo de Boas-Vindas das Sisters no Header
+  const btnOpenVideoSisters = document.getElementById('btn-open-video-sisters');
+  if (btnOpenVideoSisters) {
+    btnOpenVideoSisters.addEventListener('click', openSistersWelcomeVideo);
+  }
+
+  // Botões do Modal de Regras de Entrega
+  const btnCloseRules = document.getElementById('btn-close-rules');
+  if (btnCloseRules) btnCloseRules.addEventListener('click', closeDeliveryRulesModal);
+
+  const btnRulesGotIt = document.getElementById('btn-rules-got-it');
+  if (btnRulesGotIt) btnRulesGotIt.addEventListener('click', closeDeliveryRulesModal);
 
   // Botões de Abrir Sacola
   document.getElementById('btn-open-cart-header').addEventListener('click', openCartModal);
@@ -614,6 +639,14 @@ function openProductDetails(id) {
 
 function closeDetailsModal() {
   document.getElementById('modal-product-details').classList.remove('active');
+}
+
+function closeAllModais() {
+  closeDetailsModal();
+  closeCartModal();
+  closeAdminModal();
+  if (typeof closeStory === 'function') closeStory();
+  if (typeof closeDeliveryRulesModal === 'function') closeDeliveryRulesModal();
 }
 
 // ============================================================================
@@ -1122,14 +1155,23 @@ function loadAdminData() {
   renderAdminProductsList();
 
   // Carrega campos de configuração
-  document.getElementById('cfg-whatsapp').value = appConfig.whatsapp;
-  document.getElementById('cfg-address').value = appConfig.address;
-  document.getElementById('cfg-lat').value = appConfig.lat;
-  document.getElementById('cfg-lng').value = appConfig.lng;
-  document.getElementById('cfg-radius-km').value = appConfig.radiusKm;
-  document.getElementById('cfg-delivery-fee').value = appConfig.deliveryFee;
+  document.getElementById('cfg-whatsapp').value = appConfig.whatsapp || '';
+  document.getElementById('cfg-address').value = appConfig.address || '';
+  document.getElementById('cfg-lat').value = appConfig.lat || '';
+  document.getElementById('cfg-lng').value = appConfig.lng || '';
+  document.getElementById('cfg-radius-km').value = appConfig.radiusKm || 5.0;
+  document.getElementById('cfg-delivery-fee').value = appConfig.deliveryFee || 5.00;
   document.getElementById('cfg-pix-key').value = appConfig.pixKey || '';
   document.getElementById('cfg-pix-name').value = appConfig.pixName || '';
+
+  const cfgVideo = document.getElementById('cfg-video-url');
+  if (cfgVideo) cfgVideo.value = appConfig.videoUrl || '';
+
+  const cfgWelcome = document.getElementById('cfg-welcome-msg');
+  if (cfgWelcome) cfgWelcome.value = appConfig.welcomeMsg || '';
+
+  const cfgRules = document.getElementById('cfg-delivery-rules');
+  if (cfgRules) cfgRules.value = appConfig.deliveryRules || '';
 }
 
 // ============================================================================
@@ -1455,6 +1497,15 @@ function saveConfigFromForm() {
   appConfig.pixKey = document.getElementById('cfg-pix-key').value.trim();
   appConfig.pixName = document.getElementById('cfg-pix-name').value.trim();
 
+  const cfgVideo = document.getElementById('cfg-video-url');
+  if (cfgVideo) appConfig.videoUrl = cfgVideo.value.trim();
+
+  const cfgWelcome = document.getElementById('cfg-welcome-msg');
+  if (cfgWelcome) appConfig.welcomeMsg = cfgWelcome.value.trim();
+
+  const cfgRules = document.getElementById('cfg-delivery-rules');
+  if (cfgRules) appConfig.deliveryRules = cfgRules.value.trim();
+
   AppStorage.saveConfig(appConfig);
   initUI();
   showToast('Configurações do Brechó salvas!', '💾');
@@ -1547,12 +1598,79 @@ function closeStory() {
   if (storyTimer) clearTimeout(storyTimer);
 }
 
-// Bind dos botões de Stories
-document.getElementById('btn-story-welcome').addEventListener('click', () => openStory('welcome'));
-document.getElementById('btn-story-care').addEventListener('click', () => openStory('care'));
-document.getElementById('btn-story-delivery').addEventListener('click', () => openStory('delivery'));
-document.getElementById('btn-story-garimpo').addEventListener('click', () => openStory('garimpo'));
-document.getElementById('btn-close-story').addEventListener('click', closeStory);
+// Bind seguro dos botões de Stories
+['welcome', 'care', 'delivery', 'garimpo'].forEach(type => {
+  const btn = document.getElementById(`btn-story-${type}`);
+  if (btn) btn.addEventListener('click', () => openStory(type));
+});
+const btnCloseStory = document.getElementById('btn-close-story');
+if (btnCloseStory) btnCloseStory.addEventListener('click', closeStory);
+
+/**
+ * Abre o Vídeo/Apresentação de Boas-Vindas das Sisters
+ * (Disparado pelo botão pílula do Header)
+ */
+function openSistersWelcomeVideo() {
+  const modal = document.getElementById('modal-story-view');
+  const title = document.getElementById('story-caption-title');
+  const text = document.getElementById('story-caption-text');
+  const img = document.getElementById('story-media-img');
+  const fill = document.getElementById('story-progress-fill');
+
+  if (!modal) return;
+
+  title.textContent = 'Oi, bem-vindo ao Brechó Sisters! 💕';
+  text.textContent = appConfig.welcomeMsg || 'Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀';
+  img.src = appConfig.videoUrl || 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85';
+
+  fill.style.width = '0%';
+  fill.style.transition = 'none';
+
+  modal.classList.add('active');
+
+  setTimeout(() => {
+    fill.style.transition = 'width 7s linear';
+    fill.style.width = '100%';
+  }, 50);
+
+  if (storyTimer) clearTimeout(storyTimer);
+  storyTimer = setTimeout(() => {
+    closeStory();
+  }, 7100);
+}
+
+/**
+ * Modal de Regras de Entrega & Retirada
+ * (Parametrizado via Admin e exibido em tela exclusiva sem abrir carrinho)
+ */
+function openDeliveryRulesModal() {
+  const modal = document.getElementById('modal-delivery-rules');
+  const body = document.getElementById('rules-content-body');
+  if (!modal || !body) return;
+
+  const rulesText = appConfig.deliveryRules || '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 5km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 5km, consulte frete especial diretamente com as Sisters no WhatsApp.';
+
+  body.innerHTML = `
+    <div class="rules-info-pill">
+      <strong>🛵 Entrega na Vizinhança (Raio de até ${appConfig.radiusKm}km):</strong><br>
+      Taxa fixa de <strong>R$ ${appConfig.deliveryFee.toFixed(2).replace('.', ',')}</strong> calculada automaticamente no carrinho pelo seu CEP, endereço ou GPS!
+    </div>
+    <div class="rules-info-pill blue">
+      <strong>🏡 Retirada Gratuita no Brechó:</strong><br>
+      ${appConfig.address}
+    </div>
+    <div class="rules-custom-text">
+      ${rulesText.replace(/\n/g, '<br>')}
+    </div>
+  `;
+
+  modal.classList.add('active');
+}
+
+function closeDeliveryRulesModal() {
+  const modal = document.getElementById('modal-delivery-rules');
+  if (modal) modal.classList.remove('active');
+}
 
 // ============================================================================
 // MINI-EDITOR DE FOTOS (CROPPER 1:1, PAN, ZOOM & CONVERSOR WEBP RETINA)

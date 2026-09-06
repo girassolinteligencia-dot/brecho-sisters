@@ -23,15 +23,20 @@
     <!-- HEADER PRINCIPAL -->
     <header class="main-header">
       <div class="header-top">
-        <div class="brand-badge" id="btn-brand-home">
+        <div class="brand-badge" id="btn-brand-home" title="Toque 3 vezes para Gestão">
           <img src="icon.svg" alt="Logo Brechó Sisters" class="brand-icon-img">
           <div>
             <h1 class="brand-title">Brechó Sisters</h1>
-            <p class="brand-tagline">Roupitchas & Brinquedos com Carinho 💕</p>
+            <p class="brand-tagline">Roupitchas & Brinquedos 💕</p>
           </div>
         </div>
 
         <div class="header-actions">
+          <button class="btn-video-sisters-pill" id="btn-open-video-sisters" aria-label="Ver Vídeo das Sisters">
+            <span class="video-pulse-dot"></span>
+            <span>🎬 Vídeo das Sisters</span>
+          </button>
+
           <button class="btn-icon-soft" id="btn-open-cart-header" aria-label="Abrir Sacola">
             🛍️
             <span class="cart-counter-badge" id="cart-badge-count">0</span>
@@ -39,12 +44,12 @@
         </div>
       </div>
 
-      <!-- Banner de Entrega & Redondezas -->
+      <!-- Banner de Entrega Compacto & em Linha Única -->
       <div class="delivery-notice-pill" id="btn-banner-delivery">
         <span class="delivery-notice-text">
-          <span class="animated-scooter">🛵</span> Entregamos no seu bairro (até <strong id="header-radius-km">5km</strong>) ou retire grátis!
+          <span class="animated-scooter">🛵</span> Entregamos até <strong id="header-radius-km">5km</strong> ou retire grátis!
         </span>
-        <span class="delivery-notice-action">Ver Regras</span>
+        <span class="delivery-notice-action" id="btn-trigger-rules">Regras</span>
       </div>
 
       <!-- Barra de Busca Rápida -->
@@ -53,37 +58,6 @@
         <input type="text" id="search-input" class="search-input" placeholder="Buscar vestidos, tênis, brinquedos, tamanho...">
       </div>
     </header>
-
-    <!-- TRILHO DE STORIES / VÍDEOS DE BOAS-VINDAS DAS SISTERS -->
-    <section class="stories-rail">
-      <div class="story-bubble-item" id="btn-story-welcome">
-        <div class="story-ring-wrap">
-          <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=200&q=80" alt="Sisters Boas-Vindas" class="story-thumb-inner">
-        </div>
-        <span class="story-label-text">✨ Boas-Vindas</span>
-      </div>
-
-      <div class="story-bubble-item" id="btn-story-care">
-        <div class="story-ring-wrap" style="background: linear-gradient(45deg, #B5EAD7, #74B9FF);">
-          <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=200&q=80" alt="Higienização" class="story-thumb-inner">
-        </div>
-        <span class="story-label-text">🧼 Cuidados</span>
-      </div>
-
-      <div class="story-bubble-item" id="btn-story-delivery">
-        <div class="story-ring-wrap" style="background: linear-gradient(45deg, #FFF2B2, #FFB7C5);">
-          <img src="https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=200&q=80" alt="Entrega 5km" class="story-thumb-inner">
-        </div>
-        <span class="story-label-text">🛵 Entrega 5km</span>
-      </div>
-
-      <div class="story-bubble-item" id="btn-story-garimpo">
-        <div class="story-ring-wrap" style="background: linear-gradient(45deg, #E2CBF7, #FF8FA3);">
-          <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=200&q=80" alt="Garimpos da Semana" class="story-thumb-inner">
-        </div>
-        <span class="story-label-text">👗 Garimpos</span>
-      </div>
-    </section>
 
     <!-- CARROSSEL DE CATEGORIAS -->
     <nav class="categories-nav" id="categories-nav">
@@ -559,12 +533,54 @@
               <input type="text" id="cfg-pix-name" class="admin-input" placeholder="Ex: Maria e Ana Sisters">
             </div>
 
+            <div class="admin-form-group">
+              <label class="admin-label">🎬 Link do Vídeo/Foto de Boas-Vindas das Sisters (URL):</label>
+              <input type="url" id="cfg-video-url" class="admin-input" placeholder="https://... ou imagem/vídeo mp4">
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">💌 Mensagem de Boas-Vindas no Vídeo:</label>
+              <textarea id="cfg-welcome-msg" class="admin-textarea" rows="2" placeholder="Mensagem que aparece sobre o vídeo..."></textarea>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">🛵 Texto Completo das Regras de Entrega & Retirada:</label>
+              <textarea id="cfg-delivery-rules" class="admin-textarea" rows="3" placeholder="Explicação detalhada das regras..."></textarea>
+            </div>
+
             <button type="submit" class="admin-btn-save" style="margin-top: 8px;">
               Salvar Todas as Configurações 💾
             </button>
           </form>
         </div>
       </div><!-- /admin-dashboard-view -->
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: REGRAS DE ENTREGA & RETIRADA (ABERTO PELO BANNER DA MOTINHA)
+       ======================================================================== -->
+  <div class="modal-rules-view" id="modal-delivery-rules">
+    <div class="rules-card">
+      <div class="rules-card-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">🛵</span>
+          <div>
+            <h3 style="font-family: 'Fredoka', cursive; font-size: 1.1rem; color: #2D3436; margin: 0;">Regras de Entrega & Retirada</h3>
+            <p style="font-size: 0.75rem; color: #636E72; margin: 0;">Como funciona o envio do Brechó Sisters</p>
+          </div>
+        </div>
+        <button class="btn-close-sheet" id="btn-close-rules">&times;</button>
+      </div>
+
+      <div class="rules-card-body" id="rules-content-body">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+
+      <button type="button" class="btn-rules-action" id="btn-rules-got-it">
+        Entendi, ver peças fofas! 🌸
+      </button>
     </div>
   </div>
 
