@@ -128,55 +128,9 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   gap: 8px;
 }
 
-/* Pílula de Vídeo das Sisters no Header */
-.btn-video-sisters-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: linear-gradient(135deg, #FFF0F5, #F5EEF8);
-  border: 1.5px solid #FADBD8;
-  border-radius: var(--radius-full);
-  padding: 6px 11px;
-  font-family: var(--font-body);
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: #D81B60;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(216, 27, 96, 0.08);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  white-space: nowrap;
-}
-
-.btn-video-sisters-pill:active {
-  transform: scale(0.95);
-}
-
-.video-pulse-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: #E91E63;
-  box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7);
-  animation: pulseVideoDot 1.6s infinite;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
-@keyframes pulseVideoDot {
-  0% {
-    box-shadow: 0 0 0 0 rgba(233, 30, 99, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 5px rgba(233, 30, 99, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(233, 30, 99, 0);
-  }
-}
-
 .btn-icon-soft {
-  width: 38px;
-  height: 38px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   border: none;
   background: var(--card-bg);
@@ -184,7 +138,7 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
@@ -218,41 +172,67 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   50% { transform: scale(1.15); }
 }
 
-/* Banner de Entrega & Redondezas (Compacto, Discreto e em Linha Única) */
-.delivery-notice-pill {
-  background: linear-gradient(135deg, #E8F8F5, #EBF5FB);
-  border: 1px solid #D1F2EB;
-  border-radius: var(--radius-full);
-  padding: 4px 10px;
+/* ==========================================================================
+   LINHA COMPARTILHADA: ENTREGA (ESQ) + CONHECER AS SISTERS (DIR)
+   ========================================================================== */
+.header-action-dual-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 6px;
   margin-top: 6px;
+  width: 100%;
+}
+
+/* Lado Esquerdo: Mini Pílula de Entrega */
+.mini-delivery-pill {
+  flex: 1.2;
+  min-width: 0;
+  background: linear-gradient(135deg, #E8F8F5, #EBF5FB);
+  border: 1px solid #D1F2EB;
+  border-radius: var(--radius-full);
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0,0,0,0.03);
   overflow: hidden;
   white-space: nowrap;
+  transition: transform 0.2s ease;
 }
 
-.delivery-notice-text {
-  font-size: 0.72rem;
+.mini-delivery-pill:active {
+  transform: scale(0.97);
+}
+
+.delivery-compact-text {
+  font-size: 0.68rem;
   font-weight: 700;
   color: #1B4F72;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex: 1;
-  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+}
+
+.delivery-compact-tag {
+  font-size: 0.62rem;
+  font-weight: 800;
+  background: #FFF;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  color: #2471A3;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 1px solid #D4E6F1;
 }
 
 /* Motinha Animada Discreta */
 .animated-scooter {
   display: inline-block;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   line-height: 1;
   will-change: transform;
   flex-shrink: 0;
@@ -264,21 +244,69 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
     transform: translateX(0);
   }
   50% {
-    transform: translateX(6px);
+    transform: translateX(5px);
   }
 }
 
-.delivery-notice-action {
-  font-size: 0.65rem;
-  font-weight: 800;
-  background: #FFF;
-  padding: 2px 8px;
+/* Lado Direito: Mini Pílula das Sisters */
+.mini-sisters-pill {
+  flex: 0.88;
+  min-width: 0;
+  background: linear-gradient(135deg, #FFF0F5, #F5EEF8);
+  border: 1.5px solid #FADBD8;
   border-radius: var(--radius-full);
-  color: #2471A3;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(216, 27, 96, 0.08);
   white-space: nowrap;
+  font-family: var(--font-body);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mini-sisters-pill:active {
+  transform: scale(0.95);
+}
+
+.sisters-btn-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #D81B60;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Animação das Menininhas "Peek-a-boo" (Aparecem e somem suavemente) */
+.animated-sisters-duo {
+  display: inline-block;
+  font-size: 0.95rem;
+  line-height: 1;
   flex-shrink: 0;
-  border: 1px solid #D4E6F1;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  animation: girlsPeek 4.2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes girlsPeek {
+  0% {
+    opacity: 0.35;
+    transform: scale(0.85) translateY(2px);
+  }
+  25%, 70% {
+    opacity: 1;
+    transform: scale(1.15) translateY(-1px) rotate(3deg);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1.05) translateY(0) rotate(-2deg);
+  }
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85) translateY(2px);
+  }
 }
 
 /* Barra de Busca */
@@ -316,35 +344,45 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
 }
 
 /* ==========================================================================
-   CARROSSEL HORIZONTAL DE CATEGORIAS
+   CARROSSEL HORIZONTAL DE CATEGORIAS (LINHA ÚNICA RESPONSIVA)
    ========================================================================== */
 .categories-nav {
   display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding: 14px 18px 6px;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-}
-
-.categories-nav::-webkit-scrollbar {
-  display: none;
+  gap: 4px;
+  padding: 10px 14px 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .category-pill {
-  flex-shrink: 0;
+  flex: 1 1 0px;
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px 2px;
   background: var(--card-bg);
-  border: 2px solid var(--border-soft);
+  border: 1.5px solid var(--border-soft);
   border-radius: var(--radius-full);
-  font-size: 0.85rem;
+  font-size: 0.70rem;
   font-weight: 700;
   color: var(--text-main);
   cursor: pointer;
+  white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.category-pill .cat-icon {
+  font-size: 0.78rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.category-pill .cat-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .category-pill:active {
@@ -374,6 +412,27 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   background: var(--pastel-yellow);
   border-color: var(--pastel-yellow-dark);
   color: #856404;
+}
+
+.category-pill[data-cat="acessorios"].active {
+  background: #E2CBF7;
+  border-color: #B388FF;
+  color: #4A154B;
+}
+
+@media (max-width: 360px) {
+  .categories-nav {
+    gap: 3px;
+    padding: 8px 8px 4px;
+  }
+  .category-pill {
+    padding: 5px 1px;
+    font-size: 0.64rem;
+    gap: 1px;
+  }
+  .category-pill .cat-icon {
+    font-size: 0.72rem;
+  }
 }
 
 /* ==========================================================================
@@ -1810,4 +1869,93 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   color: var(--text-muted);
   max-width: 240px;
   margin: 0 auto 14px;
+}
+
+/* ==========================================================================
+   MINI-BANNER DISCRETO DE INSTALAÇÃO PWA
+   ========================================================================== */
+.pwa-install-banner {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  max-width: 440px;
+  margin: 0 auto;
+  background: #FFFDF9;
+  border: 1.5px solid #FFD1DC;
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  box-shadow: 0 10px 30px rgba(255, 107, 139, 0.18);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 85;
+  transform: translateY(150px);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.pwa-install-banner.show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pwa-install-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.pwa-install-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pwa-install-info strong {
+  display: block;
+  font-size: 0.8rem;
+  color: #2D3436;
+  font-weight: 800;
+}
+
+.pwa-install-info p {
+  font-size: 0.72rem;
+  color: #636E72;
+  margin: 1px 0 0;
+}
+
+.pwa-install-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.btn-pwa-install {
+  background: linear-gradient(135deg, var(--pastel-pink), var(--pastel-purple));
+  color: #4A154B;
+  border: none;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease;
+}
+
+.btn-pwa-install:active {
+  transform: scale(0.94);
+}
+
+.btn-pwa-dismiss {
+  background: none;
+  border: none;
+  color: #A0AEC0;
+  font-size: 0.95rem;
+  cursor: pointer;
+  padding: 4px;
 }

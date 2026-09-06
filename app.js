@@ -16,7 +16,7 @@ const DEFAULT_CONFIG = {
   deliveryFee: 5.00,
   pixKey: 'sisters.brecho@exemplo.com.br',
   pixName: 'Ana & Clara Brechó Sisters',
-  adminPassword: 'sisters123',
+  adminPasswordHash: '112bca87455d673dba92c8b7b838d519ee6ce35dbf5e6537d953b4ff3cc7e3ec', // sisters123
   videoUrl: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85',
   welcomeMsg: 'Oi, bem-vindo ao Brechó Sisters! 💕 Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀',
   deliveryRules: '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 5km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 5km, consulte frete especial diretamente com as Sisters no WhatsApp.'
@@ -166,6 +166,16 @@ const AppStorage = {
     localStorage.setItem('brecho_sisters_analytics', JSON.stringify(ana));
   }
 };
+
+async function sha256Hex(str) {
+  try {
+    const enc = new TextEncoder().encode(str);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  } catch (e) {
+    return str;
+  }
+}
 
 let appConfig = AppStorage.getConfig();
 let productsList = AppStorage.getProducts();
@@ -374,6 +384,9 @@ function setupEventListeners() {
 
   // Admin Events
   setupAdminEvents();
+
+  // PWA Banner Events
+  setupPwaBannerEvents();
 }
 
 // ============================================================================
@@ -664,6 +677,9 @@ function toggleCart(id) {
   } else {
     cartItems.push(prod);
     showToast(`"${prod.name}" está na sacolinha!`, '💖');
+    if (typeof triggerPwaBannerSmoothly === 'function') {
+      setTimeout(triggerPwaBannerSmoothly, 1800);
+    }
   }
 
   AppStorage.saveCart(cartItems);
@@ -1057,15 +1073,17 @@ function closeAdminModal() {
 }
 
 function setupAdminEvents() {
-  // Login
-  document.getElementById('btn-admin-login').addEventListener('click', () => {
-    const pass = document.getElementById('admin-password-input').value;
-    if (pass === appConfig.adminPassword) {
+  // Login com verificação SHA-256 criptografada
+  document.getElementById('btn-admin-login').addEventListener('click', async () => {
+    const pass = document.getElementById('admin-password-input').value.trim();
+    const inputHash = await sha256Hex(pass);
+    const expectedHash = appConfig.adminPasswordHash || '112bca87455d673dba92c8b7b838d519ee6ce35dbf5e6537d953b4ff3cc7e3ec';
+    if (inputHash === expectedHash || (appConfig.adminPassword && pass === appConfig.adminPassword)) {
       document.getElementById('admin-login-view').style.display = 'none';
       document.getElementById('admin-dashboard-view').style.display = 'block';
       loadAdminData();
     } else {
-      alert('Senha incorreta das Sisters! (Senha padrão: sisters123)');
+      alert('Senha incorreta das Sisters!');
     }
   });
 
@@ -1866,6 +1884,59 @@ const CropperStudio = {
     this.close();
   }
 };
+
+// ============================================================================
+// INSTALAÇÃO DISCRETA DO PWA (APP NO CELULAR)
+// ============================================================================
+let deferredPwaPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPwaPrompt = e;
+  setTimeout(triggerPwaBannerSmoothly, 8000);
+});
+
+function triggerPwaBannerSmoothly() {
+  const dismissedTime = localStorage.getItem('brecho_pwa_dismissed');
+  if (dismissedTime && Date.now() - parseInt(dismissedTime, 10) < 15 * 24 * 60 * 60 * 1000) {
+    return; // Não incomoda o usuário se ele dispensou recentemente (15 dias)
+  }
+
+  const banner = document.getElementById('pwa-install-banner');
+  if (!banner) return;
+  banner.classList.add('show');
+}
+
+function setupPwaBannerEvents() {
+  const banner = document.getElementById('pwa-install-banner');
+  const btnInstall = document.getElementById('btn-pwa-install');
+  const btnDismiss = document.getElementById('btn-pwa-dismiss');
+
+  if (!banner || !btnInstall || !btnDismiss) return;
+
+  btnInstall.addEventListener('click', async () => {
+    if (deferredPwaPrompt) {
+      deferredPwaPrompt.prompt();
+      const { outcome } = await deferredPwaPrompt.userChoice;
+      if (outcome === 'accepted') {
+        showToast('App instalado com sucesso! 🌸', '🎉');
+      }
+      deferredPwaPrompt = null;
+      banner.classList.remove('show');
+    } else {
+      alert('Para ter o App na tela do celular:\n\n• No iPhone (Safari): Toque em Compartilhar (ícone com setinha ⎋) e depois em "Adicionar à Tela de Início" 📲\n• No Android (Chrome): Toque nos 3 pontinhos ⋮ e depois em "Instalar aplicativo" 📲');
+      banner.classList.remove('show');
+    }
+  });
+
+  btnDismiss.addEventListener('click', () => {
+    banner.classList.remove('show');
+    localStorage.setItem('brecho_pwa_dismissed', Date.now().toString());
+  });
+
+  // Temporizador suave de 15 segundos na primeira visita
+  setTimeout(triggerPwaBannerSmoothly, 15000);
+}
 
 // Inicializa o mini-editor
 document.addEventListener('DOMContentLoaded', () => {

@@ -32,11 +32,6 @@
         </div>
 
         <div class="header-actions">
-          <button class="btn-video-sisters-pill" id="btn-open-video-sisters" aria-label="Ver Vídeo das Sisters">
-            <span class="video-pulse-dot"></span>
-            <span>🎬 Vídeo das Sisters</span>
-          </button>
-
           <button class="btn-icon-soft" id="btn-open-cart-header" aria-label="Abrir Sacola">
             🛍️
             <span class="cart-counter-badge" id="cart-badge-count">0</span>
@@ -44,12 +39,20 @@
         </div>
       </div>
 
-      <!-- Banner de Entrega Compacto & em Linha Única -->
-      <div class="delivery-notice-pill" id="btn-banner-delivery">
-        <span class="delivery-notice-text">
-          <span class="animated-scooter">🛵</span> Entregamos até <strong id="header-radius-km">5km</strong> ou retire grátis!
-        </span>
-        <span class="delivery-notice-action" id="btn-trigger-rules">Regras</span>
+      <!-- Linha Compartilhada: Entrega (Esquerda) + Conhecer as Sisters (Direita) -->
+      <div class="header-action-dual-row">
+        <!-- Lado Esquerdo: Entrega & Regras -->
+        <div class="mini-delivery-pill" id="btn-banner-delivery" title="Ver regras de entrega e retirada">
+          <span class="animated-scooter">🛵</span>
+          <span class="delivery-compact-text">Até <strong id="header-radius-km">5km</strong> ou retire</span>
+          <span class="delivery-compact-tag" id="btn-trigger-rules">Regras</span>
+        </div>
+
+        <!-- Lado Direito: Conhecer as Sisters com Menininhas Animadas -->
+        <button class="mini-sisters-pill" id="btn-open-video-sisters" aria-label="Conhecer as Sisters">
+          <span class="animated-sisters-duo">👭</span>
+          <span class="sisters-btn-label">Sisters 🎬</span>
+        </button>
       </div>
 
       <!-- Barra de Busca Rápida -->
@@ -59,22 +62,22 @@
       </div>
     </header>
 
-    <!-- CARROSSEL DE CATEGORIAS -->
+    <!-- BARRA DE CATEGORIAS (LINHA ÚNICA RESPONSIVA) -->
     <nav class="categories-nav" id="categories-nav">
       <button class="category-pill active" data-cat="todas">
-        ✨ Todas
+        <span class="cat-icon">✨</span><span class="cat-name">Todas</span>
       </button>
       <button class="category-pill" data-cat="roupas">
-        👗 Roupitchas
+        <span class="cat-icon">👗</span><span class="cat-name">Roupitchas</span>
       </button>
       <button class="category-pill" data-cat="calcados">
-        👟 Tênis & Calçados
+        <span class="cat-icon">👟</span><span class="cat-name">Calçados</span>
       </button>
       <button class="category-pill" data-cat="brinquedos">
-        🧸 Brinquedos
+        <span class="cat-icon">🧸</span><span class="cat-name">Brinquedos</span>
       </button>
       <button class="category-pill" data-cat="acessorios">
-        🎒 Acessórios
+        <span class="cat-icon">🎒</span><span class="cat-name">Acessórios</span>
       </button>
     </nav>
 
@@ -660,6 +663,19 @@
     </div>
   </div>
 
+
+  <!-- BANNER DISCRETO DE INSTALAÇÃO DO APP (PWA) -->
+  <aside class="pwa-install-banner" id="pwa-install-banner" aria-label="Instalar Aplicativo">
+    <img src="icon.svg" alt="Ícone Brechó Sisters" class="pwa-install-icon">
+    <div class="pwa-install-info">
+      <strong>Instalar o App das Sisters 🌸</strong>
+      <p id="pwa-install-text">Tenha o Brechó na sua tela inicial com 1 clique!</p>
+    </div>
+    <div class="pwa-install-actions">
+      <button type="button" class="btn-pwa-install" id="btn-pwa-install">Instalar</button>
+      <button type="button" class="btn-pwa-dismiss" id="btn-pwa-dismiss" aria-label="Fechar">✕</button>
+    </div>
+  </aside>
 
   <!-- TOAST FLUTUANTE DE NOTIFICAÇÃO -->
   <div class="toast-notice" id="toast-notice">
