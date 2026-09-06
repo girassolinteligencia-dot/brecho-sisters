@@ -192,20 +192,21 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   background: linear-gradient(135deg, #E8F8F5, #EBF5FB);
   border: 1px solid #D1F2EB;
   border-radius: var(--radius-full);
-  padding: 6px 54px 6px 42px;
+  padding: 3.5px 50px 3.5px 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  margin-top: 6px;
+  margin-top: 5px;
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
   overflow: hidden;
   white-space: nowrap;
+  min-height: 28px;
 }
 
 .delivery-notice-text {
-  font-size: 0.74rem;
+  font-size: 0.69rem;
   font-weight: 700;
   color: #1B4F72;
   overflow: hidden;
@@ -215,13 +216,13 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   margin: 0 auto;
 }
 
-/* Motinha Patrulha alinhada à esquerda da faixa */
+/* Motinha Patrulha alinhada à esquerda: 15% maior */
 .animated-scooter-patrol {
   position: absolute;
   left: 8px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.95rem;
+  font-size: 1.10rem;
   line-height: 1;
   will-change: transform;
   flex-shrink: 0;
@@ -248,19 +249,20 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
 
 .delivery-notice-action {
   position: absolute;
-  right: 8px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 0.66rem;
+  font-size: 0.58rem;
   font-weight: 800;
   background: #FFF;
-  padding: 2px 8px;
+  padding: 1.5px 6px;
   border-radius: var(--radius-full);
   color: #2471A3;
   white-space: nowrap;
   flex-shrink: 0;
   border: 1px solid #D4E6F1;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  letter-spacing: 0.2px;
 }
 
 /* Barra de Busca */
