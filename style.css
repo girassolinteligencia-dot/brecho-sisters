@@ -192,7 +192,7 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   background: linear-gradient(135deg, #E8F8F5, #EBF5FB);
   border: 1px solid #D1F2EB;
   border-radius: var(--radius-full);
-  padding: 6px 56px 6px 36px;
+  padding: 6px 54px 6px 42px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -218,14 +218,14 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
 /* Motinha Patrulha alinhada à esquerda da faixa */
 .animated-scooter-patrol {
   position: absolute;
-  left: 10px;
+  left: 8px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 0.95rem;
   line-height: 1;
   will-change: transform;
   flex-shrink: 0;
-  animation: scooterPatrulhaIdaEVolta 5s ease-in-out infinite;
+  animation: scooterPatrulhaIdaEVolta 5.2s ease-in-out infinite;
 }
 
 @keyframes scooterPatrulhaIdaEVolta {
@@ -233,10 +233,10 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
     transform: translateY(-50%) translateX(0) scaleX(1);
   }
   42% {
-    transform: translateY(-50%) translateX(16px) scaleX(1);
+    transform: translateY(-50%) translateX(25px) scaleX(1);
   }
   50% {
-    transform: translateY(-50%) translateX(16px) scaleX(-1);
+    transform: translateY(-50%) translateX(25px) scaleX(-1);
   }
   90% {
     transform: translateY(-50%) translateX(0) scaleX(-1);
