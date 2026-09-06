@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Brechó Sisters 🌸 Roupas, Tênis & Brinquedos Fofos</title>
+  <meta name="description" content="Garimpo infantil e juvenil com amor. Roupitchas, tênis e brinquedos selecionados a dedo. Entrega nas redondezas (raio de 5km) ou retirada no local!">
+  <meta name="theme-color" content="#FFB7C5">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Google Fonts: Fredoka & Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- HEADER PRINCIPAL -->
+    <header class="main-header">
+      <div class="header-top">
+        <div class="brand-badge" id="btn-brand-home">
+          <img src="icon.svg" alt="Logo Brechó Sisters" class="brand-icon-img">
+          <div>
+            <h1 class="brand-title">Brechó Sisters</h1>
+            <p class="brand-tagline">Roupitchas & Brinquedos com Carinho 💕</p>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="btn-icon-soft" id="btn-open-cart-header" aria-label="Abrir Sacola">
+            🛍️
+            <span class="cart-counter-badge" id="cart-badge-count">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner de Entrega & Redondezas -->
+      <div class="delivery-notice-pill" id="btn-banner-delivery">
+        <span class="delivery-notice-text">
+          <span class="animated-scooter">🛵</span> Entregamos no seu bairro (até <strong id="header-radius-km">5km</strong>) ou retire grátis!
+        </span>
+        <span class="delivery-notice-action">Ver Regras</span>
+      </div>
+
+      <!-- Barra de Busca Rápida -->
+      <div class="search-bar-wrap">
+        <span class="search-icon-pos">🔍</span>
+        <input type="text" id="search-input" class="search-input" placeholder="Buscar vestidos, tênis, brinquedos, tamanho...">
+      </div>
+    </header>
+
+    <!-- TRILHO DE STORIES / VÍDEOS DE BOAS-VINDAS DAS SISTERS -->
+    <section class="stories-rail">
+      <div class="story-bubble-item" id="btn-story-welcome">
+        <div class="story-ring-wrap">
+          <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=200&q=80" alt="Sisters Boas-Vindas" class="story-thumb-inner">
+        </div>
+        <span class="story-label-text">✨ Boas-Vindas</span>
+      </div>
+
+      <div class="story-bubble-item" id="btn-story-care">
+        <div class="story-ring-wrap" style="background: linear-gradient(45deg, #B5EAD7, #74B9FF);">
+          <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=200&q=80" alt="Higienização" class="story-thumb-inner">
+        </div>
+        <span class="story-label-text">🧼 Cuidados</span>
+      </div>
+
+      <div class="story-bubble-item" id="btn-story-delivery">
+        <div class="story-ring-wrap" style="background: linear-gradient(45deg, #FFF2B2, #FFB7C5);">
+          <img src="https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=200&q=80" alt="Entrega 5km" class="story-thumb-inner">
+        </div>
+        <span class="story-label-text">🛵 Entrega 5km</span>
+      </div>
+
+      <div class="story-bubble-item" id="btn-story-garimpo">
+        <div class="story-ring-wrap" style="background: linear-gradient(45deg, #E2CBF7, #FF8FA3);">
+          <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=200&q=80" alt="Garimpos da Semana" class="story-thumb-inner">
+        </div>
+        <span class="story-label-text">👗 Garimpos</span>
+      </div>
+    </section>
+
+    <!-- CARROSSEL DE CATEGORIAS -->
+    <nav class="categories-nav" id="categories-nav">
+      <button class="category-pill active" data-cat="todas">
+        ✨ Todas
+      </button>
+      <button class="category-pill" data-cat="roupas">
+        👗 Roupitchas
+      </button>
+      <button class="category-pill" data-cat="calcados">
+        👟 Tênis & Calçados
+      </button>
+      <button class="category-pill" data-cat="brinquedos">
+        🧸 Brinquedos
+      </button>
+      <button class="category-pill" data-cat="acessorios">
+        🎒 Acessórios
+      </button>
+    </nav>
+
+    <!-- SEÇÃO DA VITRINE -->
+    <main class="products-section">
+      <div class="section-header">
+        <h2 class="section-title" id="section-title">
+          <span>✨</span> Achadinhos das Sisters
+        </h2>
+        <span class="products-count" id="products-count">0 peças</span>
+      </div>
+
+      <!-- Grid dinâmico de produtos -->
+      <div class="products-grid" id="products-grid">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+    </main>
+
+    <!-- BOTTOM BAR DE NAVEGAÇÃO (3 BOTÕES FOCADOS NO CLIENTE) -->
+    <nav class="bottom-nav-bar">
+      <button class="nav-item-btn active" id="nav-home">
+        <span class="nav-icon">🌸</span>
+        <span>Vitrine</span>
+      </button>
+      <button class="nav-item-btn" id="nav-cats">
+        <span class="nav-icon">🔍</span>
+        <span>Categorias</span>
+      </button>
+      <button class="nav-item-btn" id="nav-cart">
+        <span class="nav-icon">🛍️</span>
+        <span>Sacolinha</span>
+        <span class="nav-cart-badge" id="bottom-cart-badge" style="display: none;">0</span>
+      </button>
+    </nav>
+
+  </div><!-- /app-container -->
+
+
+  <!-- ========================================================================
+       MODAL: DETALHES DA PEÇA (BOTTOM SHEET)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modal-product-details">
+    <div class="bottom-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title" id="modal-detail-title">Detalhes da Peça</h3>
+        <button class="btn-close-sheet" id="btn-close-details">&times;</button>
+      </div>
+
+      <div class="modal-detail-body" id="modal-detail-body">
+        <!-- Preenchido via app.js -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: SACOLA & GEOLOCALIZAÇÃO / ENTREGA (BOTTOM SHEET)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modal-cart">
+    <div class="bottom-sheet" style="max-height: 92vh;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title">🛍️ Minha Sacolinha</h3>
+        <button class="btn-close-sheet" id="btn-close-cart">&times;</button>
+      </div>
+
+      <!-- Lista de Itens na Sacola -->
+      <div id="cart-content-wrap">
+        <div class="cart-items-list" id="cart-items-list">
+          <!-- Linhas de produtos na sacola -->
+        </div>
+
+        <!-- Seletor de Entrega ou Retirada -->
+        <div class="delivery-options-box">
+          <div class="delivery-box-title">
+            <span>📦</span> Como deseja receber suas pecinhas?
+          </div>
+
+          <div class="radio-delivery-grid">
+            <div class="delivery-card-choice active" id="opt-pickup" data-type="pickup">
+              <span class="choice-icon">🏡</span>
+              <span class="choice-title">Vou Buscar</span>
+              <span class="choice-sub">Retirada Grátis</span>
+            </div>
+            <div class="delivery-card-choice" id="opt-delivery" data-type="delivery">
+              <span class="choice-icon">🛵</span>
+              <span class="choice-title">Receber em Casa</span>
+              <span class="choice-sub">Raio de até <span class="calc-radius-label">5km</span></span>
+            </div>
+          </div>
+
+          <!-- Dados da Compradora (Identificação com Máscaras) -->
+          <div style="background: #FFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; border: 1px solid var(--border-soft);">
+            <div style="font-size: 0.82rem; font-weight: 800; color: #2D3436; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;">
+              <span>👤</span> Quem está comprando as pecinhas?
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <input type="text" id="cust-name" class="input-address" placeholder="Seu Nome Completo (ex: Mariana Silva)" required>
+              
+              <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px;">
+                <input type="tel" id="cust-phone" class="input-address" placeholder="WhatsApp (DDD) 99999-9999" maxlength="15" required>
+                <input type="text" id="cust-cpf" class="input-address" placeholder="CPF (Opcional)" maxlength="14">
+              </div>
+            </div>
+          </div>
+
+          <!-- Detalhes da Retirada -->
+          <div class="delivery-details-card" id="details-pickup-box">
+            <p style="font-size: 0.82rem; color: #2D3436; margin-bottom: 4px;">
+              📍 <strong>Endereço para Retirada:</strong>
+            </p>
+            <p id="pickup-address-text" style="font-size: 0.8rem; color: #636E72; margin-bottom: 8px;">
+              Carregando endereço...
+            </p>
+            <a href="#" id="link-pickup-route" target="_blank" class="route-link-btn">
+              🗺️ Ver Como Chegar no Google Maps
+            </a>
+          </div>
+
+          <!-- Detalhes da Entrega com Geolocalização & CEP -->
+          <div class="delivery-details-card" id="details-delivery-box" style="display: none;">
+            <div class="geo-action-box">
+              <button type="button" class="btn-geo-locate" id="btn-geo-locate">
+                📍 Usar Minha Localização Atual (GPS do Celular)
+              </button>
+
+              <div style="text-align: center; font-size: 0.74rem; font-weight: 700; color: #A0AEC0; margin: 2px 0;">
+                OU DIGITE SEU ENDEREÇO
+              </div>
+
+              <!-- CEP com Busca Automática ViaCEP -->
+              <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 6px;">
+                <input type="tel" id="cust-cep" class="input-address" placeholder="CEP: 00000-000" maxlength="9">
+                <input type="text" id="cust-street" class="input-address" placeholder="Rua / Avenida...">
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 6px;">
+                <input type="text" id="cust-number" class="input-address" placeholder="Número (ex: 120)">
+                <input type="text" id="cust-bairro" class="input-address" placeholder="Bairro...">
+              </div>
+
+              <input type="text" id="cust-complement" class="input-address" placeholder="Complemento (Apto, Bloco, Casa 2)...">
+
+              <button type="button" id="btn-calc-address" style="padding: 10px; background: #E2CBF7; border: none; border-radius: var(--radius-sm); font-weight: 800; cursor: pointer; color: #4A154B;">
+                🛵 Calcular Distância & Entrega (Até 5km)
+              </button>
+
+              <!-- Indicador de Distância e Rota -->
+              <div id="distance-result-badge" class="distance-result-badge" style="display: none;">
+                <!-- Preenchido via app.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumo & Botão do WhatsApp -->
+        <div class="cart-summary-box">
+          <div class="summary-line">
+            <span>Subtotal das peças:</span>
+            <strong id="cart-subtotal-val">R$ 0,00</strong>
+          </div>
+          <div class="summary-line" id="delivery-tax-line" style="display: none;">
+            <span>Taxa de entrega:</span>
+            <strong id="cart-delivery-val">R$ 0,00</strong>
+          </div>
+          <div class="summary-line total">
+            <span>Total da Sacolinha:</span>
+            <span class="total-price-val" id="cart-total-val">R$ 0,00</span>
+          </div>
+
+          <button class="btn-whatsapp-submit" id="btn-submit-whatsapp">
+            <span>💬</span> Concluir e Falar com as Sisters
+          </button>
+        </div>
+      </div><!-- /cart-content-wrap -->
+
+      <!-- Estado de Sacola Vazia -->
+      <div id="cart-empty-state" class="empty-state-box" style="display: none;">
+        <div class="empty-icon">🛍️</div>
+        <h4 class="empty-title">Sua sacolinha está vazia!</h4>
+        <p class="empty-desc">Toque nas roupitchas e brinquedos que você amou para colocar aqui.</p>
+        <button class="btn-add-cart" id="btn-start-shopping" style="max-width: 200px; margin: 0 auto;">
+          🌸 Ver Vitrine
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: PAINEL ADMINISTRATIVO (PARAMETRIZAÇÃO)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modal-admin">
+    <div class="bottom-sheet" style="max-height: 94vh;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 class="sheet-title">⚙️ Painel das Sisters</h3>
+        <button class="btn-close-sheet" id="btn-close-admin">&times;</button>
+      </div>
+
+      <!-- Login Simples de Segurança -->
+      <div id="admin-login-view" style="padding: 10px 0;">
+        <p style="font-size: 0.85rem; color: #636E72; margin-bottom: 12px;">
+          Digite a senha de vendedora para gerenciar produtos e parâmetros:
+        </p>
+        <div class="admin-form-group">
+          <input type="password" id="admin-password-input" class="admin-input" placeholder="Senha de acesso...">
+        </div>
+        <button type="button" class="admin-btn-save" id="btn-admin-login">
+          Entrar no Painel 🌸
+        </button>
+      </div>
+
+      <!-- Conteúdo Administrativo -->
+      <div id="admin-dashboard-view" style="display: none;">
+        <div class="admin-tab-nav">
+          <button class="admin-tab-btn active" id="tab-btn-products">🎀 Peças & Estoque</button>
+          <button class="admin-tab-btn" id="tab-btn-orders">📋 Pedidos</button>
+          <button class="admin-tab-btn" id="tab-btn-parents">📊 Gestão dos Pais</button>
+          <button class="admin-tab-btn" id="tab-btn-config">⚙️ Parâmetros</button>
+        </div>
+
+        <!-- ABA 1: GERENCIAR PEÇAS & ESTOQUE (ESPAÇO DAS SISTERS) -->
+        <div id="admin-tab-products-content">
+          <button type="button" class="btn-add-cart" id="btn-show-add-product" style="margin-bottom: 14px; background: var(--pastel-mint); color: #1B4D3E; font-size: 0.9rem;">
+            ➕ Cadastrar Nova Peça
+          </button>
+
+          <!-- Formulário de Produto -->
+          <form id="form-product" style="display: none; background: #FDFBF7; padding: 14px; border-radius: var(--radius-sm); border: 2px dashed #E2CBF7; margin-bottom: 16px;">
+            <h4 style="font-family: 'Fredoka', cursive; margin-bottom: 10px;" id="form-product-title">Nova Peça 🎀</h4>
+            <input type="hidden" id="prod-form-id">
+
+            <div class="admin-form-group">
+              <label class="admin-label">Nome da Peça:</label>
+              <input type="text" id="prod-form-name" class="admin-input" placeholder="Ex: Vestido Floral Carter's" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="admin-form-group">
+                <label class="admin-label">Categoria:</label>
+                <select id="prod-form-category" class="admin-select">
+                  <option value="roupas">👗 Roupitchas</option>
+                  <option value="calcados">👟 Calçados/Tênis</option>
+                  <option value="brinquedos">🧸 Brinquedos</option>
+                  <option value="acessorios">🎒 Acessórios</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-label">Tamanho:</label>
+                <input type="text" id="prod-form-size" class="admin-input" placeholder="Ex: Tam 4 ou 26" required>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="admin-form-group">
+                <label class="admin-label">Preço (R$):</label>
+                <input type="number" step="0.50" id="prod-form-price" class="admin-input" placeholder="35.00" required>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-label">Estado de Uso:</label>
+                <select id="prod-form-condition" class="admin-select">
+                  <option value="novo">🏷️ Novo com Etiqueta</option>
+                  <option value="usado-1x">✨ Usado 1 vez</option>
+                  <option value="otimo">💕 Em Ótimo Estado</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">Foto da Peça (URL ou Escolher Imagem):</label>
+              <input type="text" id="prod-form-img-url" class="admin-input" placeholder="Link da foto na internet...">
+              <input type="file" id="prod-form-img-file" accept="image/*" style="font-size: 0.8rem; margin-top: 4px;">
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">História / Detalhes com Carinho:</label>
+              <textarea id="prod-form-desc" class="admin-textarea" rows="2" placeholder="Descreva medidas, tecido ou estado fofo..."></textarea>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" class="admin-btn-save" style="flex: 2;">Salvar Peça 💖</button>
+              <button type="button" id="btn-cancel-product" style="flex: 1; border: none; background: #E2E8F0; border-radius: var(--radius-md); font-weight: 700; cursor: pointer;">Cancelar</button>
+            </div>
+          </form>
+
+          <!-- Lista de Peças Cadastradas -->
+          <div id="admin-products-list">
+            <!-- Renderizado via app.js -->
+          </div>
+        </div>
+
+        <!-- ABA 2: HISTÓRICO DE PEDIDOS -->
+        <div id="admin-tab-orders-content" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="font-size: 0.95rem; font-weight: 800;">Histórico de Pedidos Recebidos</h4>
+            <span id="orders-count-badge" style="font-size: 0.75rem; background: var(--pastel-mint); color: #1B4D3E; padding: 2px 8px; border-radius: var(--radius-full); font-weight: 800;">0 pedidos</span>
+          </div>
+
+          <div id="admin-orders-list">
+            <!-- Renderizado via app.js -->
+          </div>
+        </div>
+
+        <!-- ABA 3: PAINEL DE GESTÃO DOS PAIS (DASHBOARD & ANALYTICS) -->
+        <div id="admin-tab-parents-content" style="display: none;">
+          <!-- Grade de KPIs Financeiros e Tráfego -->
+          <div class="metrics-kpi-grid">
+            <div class="kpi-card pink">
+              <div class="kpi-header">
+                <span>FATURAMENTO</span>
+                <span>💰</span>
+              </div>
+              <div class="kpi-val" id="kpi-total-revenue">R$ 0,00</div>
+              <div class="kpi-sub" id="kpi-revenue-sub">0 peças vendidas</div>
+            </div>
+
+            <div class="kpi-card green">
+              <div class="kpi-header">
+                <span>EM NEGOCIAÇÃO</span>
+                <span>⏳</span>
+              </div>
+              <div class="kpi-val" id="kpi-pending-revenue">R$ 0,00</div>
+              <div class="kpi-sub" id="kpi-pending-sub">0 pedidos abertos</div>
+            </div>
+
+            <div class="kpi-card purple">
+              <div class="kpi-header">
+                <span>VISITAS AO APP</span>
+                <span>👁️</span>
+              </div>
+              <div class="kpi-val" id="kpi-total-visits">0</div>
+              <div class="kpi-sub">Acessos registrados</div>
+            </div>
+
+            <div class="kpi-card blue">
+              <div class="kpi-header">
+                <span>BUSCAS / CONSULTAS</span>
+                <span>🔍</span>
+              </div>
+              <div class="kpi-val" id="kpi-total-searches">0</div>
+              <div class="kpi-sub">Consultas na vitrine</div>
+            </div>
+          </div>
+
+          <!-- Gráfico de Vendas por Categoria -->
+          <div class="chart-box">
+            <div class="chart-title">
+              <span>Distribuição por Categoria</span>
+              <span style="font-size: 0.72rem; color: #718096;">Faturamento</span>
+            </div>
+            
+            <div class="chart-bar-item">
+              <div class="chart-bar-labels">
+                <span>👗 Roupitchas</span>
+                <strong id="bar-val-roupas">R$ 0,00 (0%)</strong>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill pink" id="bar-fill-roupas" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="chart-bar-item">
+              <div class="chart-bar-labels">
+                <span>👟 Calçados & Tênis</span>
+                <strong id="bar-val-calcados">R$ 0,00 (0%)</strong>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill blue" id="bar-fill-calcados" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="chart-bar-item">
+              <div class="chart-bar-labels">
+                <span>🧸 Brinquedos</span>
+                <strong id="bar-val-brinquedos">R$ 0,00 (0%)</strong>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill yellow" id="bar-fill-brinquedos" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="chart-bar-item">
+              <div class="chart-bar-labels">
+                <span>🎒 Acessórios</span>
+                <strong id="bar-val-acessorios">R$ 0,00 (0%)</strong>
+              </div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill purple" id="bar-fill-acessorios" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Termos mais buscados pelos clientes -->
+          <div class="chart-box">
+            <div class="chart-title">
+              <span>🔍 O que os clientes mais procuram no Brechó:</span>
+            </div>
+            <div class="search-tags-wrap" id="search-tags-list">
+              <!-- Preenchido via app.js -->
+            </div>
+          </div>
+
+          <!-- Botão de Exportar para Excel / CSV -->
+          <button type="button" class="btn-export-csv" id="btn-export-sales-csv">
+            📊 Baixar Relatório Financeiro (Excel / CSV)
+          </button>
+        </div>
+
+        <!-- ABA 4: CONFIGURAÇÕES E PARÂMETROS GERAIS DO BRECHÓ -->
+        <div id="admin-tab-config-content" style="display: none;">
+          <form id="form-config">
+            <div class="admin-form-group">
+              <label class="admin-label">📱 WhatsApp das Sisters (com DDD, só números):</label>
+              <input type="text" id="cfg-whatsapp" class="admin-input" placeholder="Ex: 5511999999999" required>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">🏡 Endereço do Brechó (Retirada):</label>
+              <input type="text" id="cfg-address" class="admin-input" placeholder="Rua das Flores, 120 - Bairro das Rosas" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="admin-form-group">
+                <label class="admin-label">Latitude Vendedora:</label>
+                <input type="number" step="0.000001" id="cfg-lat" class="admin-input" placeholder="-23.5505">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-label">Longitude Vendedora:</label>
+                <input type="number" step="0.000001" id="cfg-lng" class="admin-input" placeholder="-46.6333">
+              </div>
+            </div>
+            <button type="button" id="btn-get-seller-coords" style="font-size: 0.78rem; padding: 6px; background: #B2E2F8; border: none; border-radius: var(--radius-sm); margin-bottom: 12px; font-weight: 700; cursor: pointer;">
+              📍 Buscar Coordenadas do Endereço Automático
+            </button>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div class="admin-form-group">
+                <label class="admin-label">Raio Máximo de Entrega (km):</label>
+                <input type="number" step="0.5" id="cfg-radius-km" class="admin-input" value="5.0" required>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-label">Taxa de Entrega (R$):</label>
+                <input type="number" step="0.50" id="cfg-delivery-fee" class="admin-input" value="5.00" required>
+              </div>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">🔑 Chave PIX das Vendedoras (para envio rápido):</label>
+              <input type="text" id="cfg-pix-key" class="admin-input" placeholder="Ex: celular, e-mail ou aleatória">
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">Nome do Titular do PIX:</label>
+              <input type="text" id="cfg-pix-name" class="admin-input" placeholder="Ex: Maria e Ana Sisters">
+            </div>
+
+            <button type="submit" class="admin-btn-save" style="margin-top: 8px;">
+              Salvar Todas as Configurações 💾
+            </button>
+          </form>
+        </div>
+      </div><!-- /admin-dashboard-view -->
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: STORY / VÍDEO DE BOAS-VINDAS DAS SISTERS (FORMATO VERTICAL)
+       ======================================================================== -->
+  <div class="modal-story-view" id="modal-story-view">
+    <div class="story-player-card">
+      <div class="story-progress-bar-wrap">
+        <div class="story-progress-fill" id="story-progress-fill"></div>
+      </div>
+
+      <div class="story-header-overlay">
+        <div class="story-author-meta">
+          <img src="icon.svg" alt="Avatar Sisters" class="story-author-avatar">
+          <span class="story-author-name">Brechó Sisters 🌸</span>
+        </div>
+        <button class="btn-close-story" id="btn-close-story">&times;</button>
+      </div>
+
+      <!-- Vídeo ou Animação de Boas-Vindas -->
+      <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" alt="Vídeo Sisters" class="story-media-content" id="story-media-img">
+
+      <div class="story-caption-overlay">
+        <h4 class="story-caption-title" id="story-caption-title">Oi, bem-vindo ao Brechó Sisters! 💕</h4>
+        <p class="story-caption-text" id="story-caption-text">
+          Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀
+        </p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: MINI-EDITOR DE FOTOS (CROPPER 1:1, PAN, ZOOM & WEBP RETINA)
+       ======================================================================== -->
+  <div class="modal-cropper-view" id="modal-cropper-view">
+    <div class="cropper-card">
+      <div class="cropper-title">
+        <span>Mini-Estúdio de Foto 🎀</span>
+        <button class="btn-close-sheet" id="btn-close-cropper">&times;</button>
+      </div>
+      <p class="cropper-subtitle">
+        Arraste a foto com o dedo ou use o zoom para enquadrar a pecinha perfeitamente no quadrado 1:1!
+      </p>
+
+      <!-- Viewport de Corte Quadrado -->
+      <div class="crop-viewport" id="crop-viewport">
+        <img src="" alt="Alvo de Corte" class="crop-img-target" id="crop-img-target">
+        <div class="crop-guidelines"></div>
+      </div>
+
+      <!-- Controles de Ajuste e Zoom -->
+      <div class="cropper-controls">
+        <div class="zoom-slider-row">
+          <span style="font-size: 0.85rem;">🔍 Zoom:</span>
+          <button type="button" id="btn-zoom-out" style="padding: 4px 8px; border-radius: var(--radius-sm); border: none; background: #F1F2F6; font-weight: 800; cursor: pointer;">➖</button>
+          <input type="range" id="crop-zoom-slider" class="zoom-slider" min="1" max="3" step="0.05" value="1">
+          <button type="button" id="btn-zoom-in" style="padding: 4px 8px; border-radius: var(--radius-sm); border: none; background: #F1F2F6; font-weight: 800; cursor: pointer;">➕</button>
+          <button type="button" id="btn-crop-rotate" style="padding: 4px 8px; border-radius: var(--radius-sm); border: none; background: #E2CBF7; font-weight: 800; cursor: pointer;" title="Girar 90º">🔄</button>
+        </div>
+
+        <div style="font-size: 0.72rem; color: #00B894; font-weight: 700; text-align: center;">
+          ⚡ Conversor automático para WebP em Resolução Retina (Super Leve)
+        </div>
+
+        <div class="cropper-actions-row">
+          <button type="button" class="btn-crop-confirm" id="btn-crop-confirm">
+            ✓ Aplicar e Converter em WebP ✨
+          </button>
+          <button type="button" class="btn-crop-cancel" id="btn-crop-cancel">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TOAST FLUTUANTE DE NOTIFICAÇÃO -->
+  <div class="toast-notice" id="toast-notice">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg">Peça adicionada com sucesso!</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

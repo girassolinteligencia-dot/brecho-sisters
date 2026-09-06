@@ -1,0 +1,9 @@
+# Logs e arquivos temporários
+*.log
+.DS_Store
+Thumbs.db
+
+# Dependências locais
+node_modules/
+dist/
+.wrangler/
