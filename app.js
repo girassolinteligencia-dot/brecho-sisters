@@ -1,6 +1,6 @@
 /**
  * 🌸 BRECHÓ SISTERS - CORE APP JAVASCRIPT
- * Mobile-First, Geolocalização (Raio 5km), Rotas Google Maps, WhatsApp e Painel Admin
+ * Mobile-First, Geolocalização (Raio 2km), Rotas Google Maps, WhatsApp e Painel Admin
  */
 
 // ============================================================================
@@ -12,14 +12,14 @@ const DEFAULT_CONFIG = {
   address: 'Rua das Rosas, 350 - Bairro das Flores, São Paulo - SP',
   lat: -23.550520,
   lng: -46.633308,
-  radiusKm: 5.0,
+  radiusKm: 2.0,
   deliveryFee: 5.00,
   pixKey: 'sisters.brecho@exemplo.com.br',
   pixName: 'Ana & Clara Brechó Sisters',
   adminPasswordHash: '112bca87455d673dba92c8b7b838d519ee6ce35dbf5e6537d953b4ff3cc7e3ec', // sisters123
   videoUrl: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85',
   welcomeMsg: 'Oi, bem-vindo ao Brechó Sisters! 💕 Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀',
-  deliveryRules: '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 5km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 5km, consulte frete especial diretamente com as Sisters no WhatsApp.'
+  deliveryRules: '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 2km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 2km, consulte frete especial diretamente com as Sisters no WhatsApp.'
 };
 
 const DEFAULT_PRODUCTS = [
@@ -139,7 +139,16 @@ const DEFAULT_ANALYTICS = {
 const AppStorage = {
   getConfig() {
     const data = localStorage.getItem('brecho_sisters_config');
-    return data ? { ...DEFAULT_CONFIG, ...JSON.parse(data) } : DEFAULT_CONFIG;
+    let cfg = data ? { ...DEFAULT_CONFIG, ...JSON.parse(data) } : { ...DEFAULT_CONFIG };
+    if (cfg.radiusKm === 5 || cfg.radiusKm === 5.0) {
+      cfg.radiusKm = 2.0;
+      localStorage.setItem('brecho_sisters_config', JSON.stringify(cfg));
+    }
+    if (cfg.deliveryRules && cfg.deliveryRules.includes('5km')) {
+      cfg.deliveryRules = cfg.deliveryRules.replace(/5km/g, '2km');
+      localStorage.setItem('brecho_sisters_config', JSON.stringify(cfg));
+    }
+    return cfg;
   },
   saveConfig(cfg) {
     localStorage.setItem('brecho_sisters_config', JSON.stringify(cfg));
@@ -164,6 +173,13 @@ const AppStorage = {
   },
   saveAnalytics(ana) {
     localStorage.setItem('brecho_sisters_analytics', JSON.stringify(ana));
+  },
+  getFavorites() {
+    const data = localStorage.getItem('brecho_sisters_favorites');
+    return data ? JSON.parse(data) : [];
+  },
+  saveFavorites(favs) {
+    localStorage.setItem('brecho_sisters_favorites', JSON.stringify(favs));
   }
 };
 
@@ -180,6 +196,7 @@ async function sha256Hex(str) {
 let appConfig = AppStorage.getConfig();
 let productsList = AppStorage.getProducts();
 let cartItems = AppStorage.getCart();
+let favoritesList = AppStorage.getFavorites();
 let analyticsData = AppStorage.getAnalytics();
 
 // Estado atual de entrega/geolocalização
@@ -210,7 +227,18 @@ function initUI() {
   
   // Link de rota para o endereço das vendedoras
   const pickupLink = document.getElementById('link-pickup-route');
-  pickupLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appConfig.address)}`;
+  if (pickupLink) {
+    pickupLink.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(appConfig.address)}`;
+  }
+
+  // Link direto do WhatsApp na Central de Ajuda
+  const waLink = document.getElementById('link-direct-whatsapp');
+  if (waLink) {
+    const cleanPhone = (appConfig.whatsapp || '5511987654321').replace(/\D/g, '');
+    waLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Olá Sisters! Estou visitando o Brechó e gostaria de tirar uma dúvida sobre as pecinhas 💕')}`;
+  }
+
+  updateFavBadges();
 }
 
 function setupEventListeners() {
@@ -317,11 +345,27 @@ function setupEventListeners() {
     });
   }
 
-  // Botão Pílula: Vídeo de Boas-Vindas das Sisters no Header
-  const btnOpenVideoSisters = document.getElementById('btn-open-video-sisters');
-  if (btnOpenVideoSisters) {
-    btnOpenVideoSisters.addEventListener('click', openSistersWelcomeVideo);
+  // Botão Dúvidas / WhatsApp no Header
+  const btnHelpHeader = document.getElementById('btn-open-help-header');
+  if (btnHelpHeader) {
+    btnHelpHeader.addEventListener('click', openHelpCenterModal);
   }
+
+  // Botões do Modal de Dúvidas
+  const btnCloseHelp = document.getElementById('btn-close-help');
+  if (btnCloseHelp) btnCloseHelp.addEventListener('click', closeHelpCenterModal);
+
+  const btnPlayHelpVideo = document.getElementById('btn-play-help-video');
+  if (btnPlayHelpVideo) {
+    btnPlayHelpVideo.addEventListener('click', openSistersWelcomeVideo);
+  }
+
+  // Botões de Compartilhar / Indicar
+  const btnShareShopAction = document.getElementById('btn-share-shop-action');
+  if (btnShareShopAction) btnShareShopAction.addEventListener('click', shareShop);
+
+  const btnCartShare = document.getElementById('btn-cart-share');
+  if (btnCartShare) btnCartShare.addEventListener('click', shareShop);
 
   // Botões do Modal de Regras de Entrega
   const btnCloseRules = document.getElementById('btn-close-rules');
@@ -330,8 +374,14 @@ function setupEventListeners() {
   const btnRulesGotIt = document.getElementById('btn-rules-got-it');
   if (btnRulesGotIt) btnRulesGotIt.addEventListener('click', closeDeliveryRulesModal);
 
-  // Botões de Abrir Sacola
-  document.getElementById('btn-open-cart-header').addEventListener('click', openCartModal);
+  // Botões de Favoritos
+  const navFavs = document.getElementById('nav-favs');
+  if (navFavs) navFavs.addEventListener('click', openFavoritesModal);
+
+  const btnCloseFavs = document.getElementById('btn-close-favs');
+  if (btnCloseFavs) btnCloseFavs.addEventListener('click', closeFavoritesModal);
+
+  // Botão de Abrir Sacola
   document.getElementById('nav-cart').addEventListener('click', openCartModal);
 
   // Botões de Fechar Modais
@@ -339,7 +389,7 @@ function setupEventListeners() {
   document.getElementById('btn-close-cart').addEventListener('click', closeCartModal);
   document.getElementById('btn-close-admin').addEventListener('click', closeAdminModal);
 
-  // Navegação da Bottom Bar (3 Botões do Cliente)
+  // Navegação da Bottom Bar (4 Botões do Cliente)
   document.getElementById('nav-home').addEventListener('click', () => {
     setActiveBottomNav('nav-home');
     resetCategoryFilter();
@@ -387,6 +437,15 @@ function setupEventListeners() {
 
   // PWA Banner Events
   setupPwaBannerEvents();
+
+  // Suporte a abrir peça compartilhada via link (?piece=ID)
+  const urlParams = new URLSearchParams(window.location.search);
+  const sharedPieceId = urlParams.get('piece');
+  if (sharedPieceId) {
+    setTimeout(() => {
+      openProductDetails(sharedPieceId);
+    }, 500);
+  }
 }
 
 // ============================================================================
@@ -497,6 +556,10 @@ function closeAllModais() {
   closeDetailsModal();
   closeCartModal();
   closeAdminModal();
+  if (typeof closeStory === 'function') closeStory();
+  if (typeof closeDeliveryRulesModal === 'function') closeDeliveryRulesModal();
+  if (typeof closeFavoritesModal === 'function') closeFavoritesModal();
+  if (typeof closeHelpCenterModal === 'function') closeHelpCenterModal();
 }
 
 // ============================================================================
@@ -534,6 +597,7 @@ function renderProducts(category = 'todas', query = '') {
     const isSold = prod.status === 'vendido';
     const isReserved = prod.status === 'reservado';
     const inCart = cartItems.some(item => item.id === prod.id);
+    const isFav = favoritesList.includes(prod.id);
 
     const card = document.createElement('article');
     card.className = `product-card ${isSold ? 'vendido' : ''}`;
@@ -557,6 +621,9 @@ function renderProducts(category = 'todas', query = '') {
     card.innerHTML = `
       <div class="product-thumb-wrap" onclick="openProductDetails('${prod.id}')">
         <img src="${prod.image}" alt="${prod.name}" class="product-thumb" loading="lazy" onerror="this.src='icon.svg'">
+        <button type="button" class="btn-fav-card ${isFav ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavorite('${prod.id}')" title="${isFav ? 'Remover dos favoritos' : 'Favoritar peça'}">
+          ${isFav ? '❤️' : '🤍'}
+        </button>
         ${conditionBadge}
         <span class="badge-size">${prod.size}</span>
         ${statusOverlay}
@@ -645,6 +712,10 @@ function openProductDetails(id) {
         Esta peça já encontrou um novo lar 💕
       </button>
     `}
+
+    <button type="button" class="btn-share-piece-detail" onclick="sharePiece('${prod.id}')">
+      <span>↗️</span> Mostrar essa peça para uma amiga
+    </button>
   `;
 
   modal.classList.add('active');
@@ -652,14 +723,6 @@ function openProductDetails(id) {
 
 function closeDetailsModal() {
   document.getElementById('modal-product-details').classList.remove('active');
-}
-
-function closeAllModais() {
-  closeDetailsModal();
-  closeCartModal();
-  closeAdminModal();
-  if (typeof closeStory === 'function') closeStory();
-  if (typeof closeDeliveryRulesModal === 'function') closeDeliveryRulesModal();
 }
 
 // ============================================================================
@@ -776,7 +839,7 @@ function renderCartModal() {
 }
 
 // ============================================================================
-// GEOLOCALIZAÇÃO & CÁLCULO DE DISTÂNCIA / ROTAS (RAIO 5KM)
+// GEOLOCALIZAÇÃO & CÁLCULO DE DISTÂNCIA / ROTAS (RAIO 2KM)
 // ============================================================================
 
 function selectDeliveryOption(type) {
@@ -911,7 +974,7 @@ async function handleAddressGeocode() {
 }
 
 /**
- * Avalia se o cliente está dentro do raio de 5km e gera rota
+ * Avalia se o cliente está dentro do raio de 2km e gera rota
  */
 function evaluateCustomerDistance() {
   if (!customerCoords) return;
@@ -1177,7 +1240,7 @@ function loadAdminData() {
   document.getElementById('cfg-address').value = appConfig.address || '';
   document.getElementById('cfg-lat').value = appConfig.lat || '';
   document.getElementById('cfg-lng').value = appConfig.lng || '';
-  document.getElementById('cfg-radius-km').value = appConfig.radiusKm || 5.0;
+  document.getElementById('cfg-radius-km').value = appConfig.radiusKm || 2.0;
   document.getElementById('cfg-delivery-fee').value = appConfig.deliveryFee || 5.00;
   document.getElementById('cfg-pix-key').value = appConfig.pixKey || '';
   document.getElementById('cfg-pix-name').value = appConfig.pixName || '';
@@ -1567,8 +1630,8 @@ const STORIES_DATA = {
     media: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=85'
   },
   delivery: {
-    title: 'Entregamos na sua Porta (Raio até 5km) 🛵',
-    text: 'Mora pertinho da gente? Entregamos com taxa fixa de R$ 5,00 ou grátis para vizinhos próximos. Se preferir, pode retirar com a gente!',
+    title: 'Entregamos na sua Porta (Raio até 2km) 🛵',
+    text: 'Mora pertinho da gente? Entregamos com taxa fixa de R$ 5,00 no raio de até 2km. Se preferir, pode retirar com a gente gratuitamente!',
     media: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=800&q=85'
   },
   garimpo: {
@@ -1666,7 +1729,7 @@ function openDeliveryRulesModal() {
   const body = document.getElementById('rules-content-body');
   if (!modal || !body) return;
 
-  const rulesText = appConfig.deliveryRules || '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 5km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 5km, consulte frete especial diretamente com as Sisters no WhatsApp.';
+  const rulesText = appConfig.deliveryRules || '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 2km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 2km, consulte frete especial diretamente com as Sisters no WhatsApp.';
 
   body.innerHTML = `
     <div class="rules-info-pill">
@@ -1689,6 +1752,206 @@ function closeDeliveryRulesModal() {
   const modal = document.getElementById('modal-delivery-rules');
   if (modal) modal.classList.remove('active');
 }
+
+// ============================================================================
+// CENTRAL DE DÚVIDAS & QUEM SOMOS
+// ============================================================================
+
+function openHelpCenterModal() {
+  const modal = document.getElementById('modal-help-center');
+  if (!modal) return;
+  const waLink = document.getElementById('link-direct-whatsapp');
+  if (waLink) {
+    const cleanPhone = (appConfig.whatsapp || '5511987654321').replace(/\D/g, '');
+    waLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Olá Sisters! Estou visitando o Brechó e gostaria de tirar uma dúvida sobre as pecinhas 💕')}`;
+  }
+  modal.classList.add('active');
+}
+
+function closeHelpCenterModal() {
+  const modal = document.getElementById('modal-help-center');
+  if (modal) modal.classList.remove('active');
+}
+
+// ============================================================================
+// SISTEMA DE FAVORITOS (LOCALSTORAGE & MODAL EXCLUSIVO)
+// ============================================================================
+
+function toggleFavorite(id) {
+  const index = favoritesList.indexOf(id);
+  const prod = productsList.find(p => p.id === id);
+  if (index >= 0) {
+    favoritesList.splice(index, 1);
+    showToast('Removido dos favoritos', '🤍');
+  } else {
+    favoritesList.push(id);
+    showToast(`${prod ? prod.name : 'Peça'} favoritada com carinho!`, '❤️');
+    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+  }
+  AppStorage.saveFavorites(favoritesList);
+  updateFavBadges();
+
+  // Atualiza modal se estiver aberto
+  const favModal = document.getElementById('modal-favorites');
+  if (favModal && favModal.classList.contains('active')) {
+    renderFavoritesModal();
+  }
+
+  // Atualiza vitrine
+  renderProducts(getActiveCategory(), document.getElementById('search-input').value.trim().toLowerCase());
+}
+
+function updateFavBadges() {
+  const count = favoritesList.length;
+  const badge = document.getElementById('bottom-fav-badge');
+  if (badge) {
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+function openFavoritesModal() {
+  const modal = document.getElementById('modal-favorites');
+  if (!modal) return;
+  setActiveBottomNav('nav-favs');
+  renderFavoritesModal();
+  modal.classList.add('active');
+}
+
+function closeFavoritesModal() {
+  const modal = document.getElementById('modal-favorites');
+  if (modal) modal.classList.remove('active');
+  setActiveBottomNav('nav-home');
+}
+
+function renderFavoritesModal() {
+  const body = document.getElementById('favs-modal-body');
+  if (!body) return;
+
+  const favProds = productsList.filter(p => favoritesList.includes(p.id));
+
+  if (favProds.length === 0) {
+    body.innerHTML = `
+      <div class="empty-state-box">
+        <div class="empty-icon">🤍</div>
+        <h4 class="empty-title">Nenhum favorito ainda!</h4>
+        <p class="empty-desc">Toque no coraçãozinho das pecinhas que você mais amar na vitrine para guardá-las aqui 💕</p>
+        <button type="button" class="btn-whatsapp-submit" style="margin-top: 14px; background: var(--pastel-pink); color: #7B112D;" onclick="closeFavoritesModal(); window.scrollTo({top: 0, behavior: 'smooth'});">
+          Explorar Vitrine 🌸
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div style="font-size: 0.88rem; color: #636E72; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+      <span><strong>${favProds.length}</strong> ${favProds.length === 1 ? 'peça guardada' : 'peças guardadas'}</span>
+      <button type="button" style="background: none; border: none; color: #E84393; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-decoration: underline;" onclick="clearAllFavorites()">Limpar lista</button>
+    </div>
+  `;
+
+  favProds.forEach(prod => {
+    const isSold = prod.status === 'vendido';
+    const inCart = cartItems.some(item => item.id === prod.id);
+
+    html += `
+      <div class="fav-prod-row">
+        <img src="${prod.image}" alt="${prod.name}" class="fav-prod-thumb" onclick="openProductDetails('${prod.id}')" onerror="this.src='icon.svg'">
+        <div class="fav-prod-details">
+          <span class="fav-prod-cat">${formatCategory(prod.category)} • Tam ${prod.size}</span>
+          <h4 class="fav-prod-name" onclick="openProductDetails('${prod.id}')">${prod.name}</h4>
+          <div class="fav-prod-price">R$ ${prod.price.toFixed(2).replace('.', ',')}</div>
+        </div>
+        <div class="fav-actions">
+          ${!isSold ? `
+            <button type="button" class="btn-fav-add-cart ${inCart ? 'in-cart' : ''}" onclick="toggleCart('${prod.id}'); renderFavoritesModal();">
+              ${inCart ? '✓ Na Sacola' : '+ Sacola'}
+            </button>
+          ` : `
+            <span style="font-size: 0.75rem; color: #A0AEC0; font-weight: 700;">Vendido</span>
+          `}
+          <button type="button" class="btn-fav-remove" onclick="toggleFavorite('${prod.id}')" title="Remover dos favoritos">
+            🗑️
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  body.innerHTML = html;
+}
+
+function clearAllFavorites() {
+  if (confirm('Deseja limpar todos os seus favoritos?')) {
+    favoritesList = [];
+    AppStorage.saveFavorites(favoritesList);
+    updateFavBadges();
+    renderFavoritesModal();
+    renderProducts(getActiveCategory(), document.getElementById('search-input').value.trim().toLowerCase());
+    showToast('Favoritos limpos 🤍');
+  }
+}
+
+// ============================================================================
+// COMPARTILHAR / INDICAR O BRECHÓ & PEÇAS ESPECÍFICAS
+// ============================================================================
+
+async function shareShop() {
+  const shareData = {
+    title: 'Brechó Sisters 🌸',
+    text: 'Olha que fofura o Brechó Sisters! Roupitchas, calçados e brinquedos infantis selecionados com carinho e entrega rápida na vizinhança 💕',
+    url: window.location.origin || 'https://brecho-sisters.pages.dev'
+  };
+
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+      showToast('Obrigado por indicar as Sisters! 💕', '🌸');
+      return;
+    } catch (e) {
+      // Usuário cancelou
+    }
+  }
+
+  // Fallback WhatsApp
+  const shareText = encodeURIComponent(`${shareData.text}\n\nConheça o Brechó Sisters: ${shareData.url}`);
+  window.open(`https://api.whatsapp.com/send?text=${shareText}`, '_blank');
+}
+
+async function sharePiece(id) {
+  const prod = productsList.find(p => p.id === id);
+  if (!prod) return;
+
+  const url = `${window.location.origin || 'https://brecho-sisters.pages.dev'}?piece=${encodeURIComponent(prod.id)}`;
+  const text = `Olha que achadinho lindo no Brechó Sisters! 🌸\n*${prod.name}* (Tam: ${prod.size}) por apenas *R$ ${prod.price.toFixed(2).replace('.', ',')}*!`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: prod.name,
+        text: text,
+        url: url
+      });
+      showToast('Compartilhado com sucesso! 💖', '✨');
+      return;
+    } catch (e) {}
+  }
+
+  // Fallback WhatsApp
+  const fullText = encodeURIComponent(`${text}\n\nVeja aqui: ${url}`);
+  window.open(`https://api.whatsapp.com/send?text=${fullText}`, '_blank');
+}
+
+// Exposição explícita para inline handlers
+window.toggleFavorite = toggleFavorite;
+window.clearAllFavorites = clearAllFavorites;
+window.openFavoritesModal = openFavoritesModal;
+window.closeFavoritesModal = closeFavoritesModal;
+window.openHelpCenterModal = openHelpCenterModal;
+window.closeHelpCenterModal = closeHelpCenterModal;
+window.shareShop = shareShop;
+window.sharePiece = sharePiece;
 
 // ============================================================================
 // MINI-EDITOR DE FOTOS (CROPPER 1:1, PAN, ZOOM & CONVERSOR WEBP RETINA)

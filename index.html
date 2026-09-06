@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Brechó Sisters 🌸 Roupas, Tênis & Brinquedos Fofos</title>
-  <meta name="description" content="Garimpo infantil e juvenil com amor. Roupitchas, tênis e brinquedos selecionados a dedo. Entrega nas redondezas (raio de 5km) ou retirada no local!">
+  <meta name="description" content="Garimpo infantil e juvenil com amor. Roupitchas, tênis e brinquedos selecionados a dedo. Entrega nas redondezas (raio de 2km) ou retirada no local!">
   <meta name="theme-color" content="#FFB7C5">
   <link rel="icon" type="image/svg+xml" href="icon.svg">
   <link rel="manifest" href="manifest.json">
@@ -32,27 +32,19 @@
         </div>
 
         <div class="header-actions">
-          <button class="btn-icon-soft" id="btn-open-cart-header" aria-label="Abrir Sacola">
-            🛍️
-            <span class="cart-counter-badge" id="cart-badge-count">0</span>
+          <button class="btn-help-header" id="btn-open-help-header" aria-label="Dúvidas e WhatsApp">
+            <span class="help-pulse-dot"></span>
+            <span>💬 Dúvidas</span>
           </button>
         </div>
       </div>
 
-      <!-- Linha Compartilhada: Entrega (Esquerda) + Conhecer as Sisters (Direita) -->
-      <div class="header-action-dual-row">
-        <!-- Lado Esquerdo: Entrega & Regras -->
-        <div class="mini-delivery-pill" id="btn-banner-delivery" title="Ver regras de entrega e retirada">
-          <span class="animated-scooter">🛵</span>
-          <span class="delivery-compact-text">Até <strong id="header-radius-km">5km</strong> ou retire</span>
-          <span class="delivery-compact-tag" id="btn-trigger-rules">Regras</span>
-        </div>
-
-        <!-- Lado Direito: Conhecer as Sisters com Menininhas Animadas -->
-        <button class="mini-sisters-pill" id="btn-open-video-sisters" aria-label="Conhecer as Sisters">
-          <span class="animated-sisters-duo">👭</span>
-          <span class="sisters-btn-label">Sisters 🎬</span>
-        </button>
+      <!-- Banner de Entrega Compacto com Motinha em Ida e Volta -->
+      <div class="delivery-notice-pill" id="btn-banner-delivery" title="Ver regras de entrega e retirada">
+        <span class="delivery-notice-text">
+          <span class="animated-scooter-patrol">🛵</span> Entregamos até <strong id="header-radius-km">2km</strong> ou retire grátis!
+        </span>
+        <span class="delivery-notice-action" id="btn-trigger-rules">Regras</span>
       </div>
 
       <!-- Barra de Busca Rápida -->
@@ -96,7 +88,7 @@
       </div>
     </main>
 
-    <!-- BOTTOM BAR DE NAVEGAÇÃO (3 BOTÕES FOCADOS NO CLIENTE) -->
+    <!-- BOTTOM BAR DE NAVEGAÇÃO (EXATAMENTE 4 BOTÕES DO CLIENTE) -->
     <nav class="bottom-nav-bar">
       <button class="nav-item-btn active" id="nav-home">
         <span class="nav-icon">🌸</span>
@@ -105,6 +97,11 @@
       <button class="nav-item-btn" id="nav-cats">
         <span class="nav-icon">🔍</span>
         <span>Categorias</span>
+      </button>
+      <button class="nav-item-btn" id="nav-favs">
+        <span class="nav-icon">❤️</span>
+        <span>Favoritos</span>
+        <span class="nav-cart-badge" id="bottom-fav-badge" style="display: none;">0</span>
       </button>
       <button class="nav-item-btn" id="nav-cart">
         <span class="nav-icon">🛍️</span>
@@ -166,7 +163,7 @@
             <div class="delivery-card-choice" id="opt-delivery" data-type="delivery">
               <span class="choice-icon">🛵</span>
               <span class="choice-title">Receber em Casa</span>
-              <span class="choice-sub">Raio de até <span class="calc-radius-label">5km</span></span>
+              <span class="choice-sub">Raio de até <span class="calc-radius-label">2km</span></span>
             </div>
           </div>
 
@@ -223,7 +220,7 @@
               <input type="text" id="cust-complement" class="input-address" placeholder="Complemento (Apto, Bloco, Casa 2)...">
 
               <button type="button" id="btn-calc-address" style="padding: 10px; background: #E2CBF7; border: none; border-radius: var(--radius-sm); font-weight: 800; cursor: pointer; color: #4A154B;">
-                🛵 Calcular Distância & Entrega (Até 5km)
+                🛵 Calcular Distância & Entrega (Até 2km)
               </button>
 
               <!-- Indicador de Distância e Rota -->
@@ -252,6 +249,12 @@
           <button class="btn-whatsapp-submit" id="btn-submit-whatsapp">
             <span>💬</span> Concluir e Falar com as Sisters
           </button>
+
+          <!-- Card de Indicação no Carrinho -->
+          <div class="cart-referral-note">
+            <span>🎁</span>
+            <p>Gostou dos achadinhos? <button type="button" class="link-btn-share" id="btn-cart-share">Convide uma amiga para garimpar junto!</button></p>
+          </div>
         </div>
       </div><!-- /cart-content-wrap -->
 
@@ -518,7 +521,7 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
               <div class="admin-form-group">
                 <label class="admin-label">Raio Máximo de Entrega (km):</label>
-                <input type="number" step="0.5" id="cfg-radius-km" class="admin-input" value="5.0" required>
+                <input type="number" step="0.5" id="cfg-radius-km" class="admin-input" value="2.0" required>
               </div>
               <div class="admin-form-group">
                 <label class="admin-label">Taxa de Entrega (R$):</label>
@@ -589,7 +592,111 @@
 
 
   <!-- ========================================================================
-       MODAL: STORY / VÍDEO DE BOAS-VINDAS DAS SISTERS (FORMATO VERTICAL)
+       MODAL: FAVORITOS / PEÇAS QUE AMEI (BOTTOM SHEET)
+       ======================================================================== -->
+  <div class="modal-overlay" id="modal-favorites">
+    <div class="bottom-sheet" style="max-height: 88vh;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.3rem;">❤️</span>
+          <div>
+            <h3 class="sheet-title" style="margin: 0;">Meus Favoritos</h3>
+            <p style="font-size: 0.72rem; color: #636E72; margin: 0;">Pecinhas que você amou e salvou</p>
+          </div>
+        </div>
+        <button class="btn-close-sheet" id="btn-close-favs">&times;</button>
+      </div>
+
+      <div class="favs-body" id="favs-modal-body" style="padding: 14px 16px 28px; max-height: 70vh; overflow-y: auto;">
+        <!-- Renderizado dinamicamente via app.js -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: CENTRAL DE DÚVIDAS, VÍDEO DAS SISTERS, FAQ & INDICAÇÃO
+       ======================================================================== -->
+  <div class="modal-overlay" id="modal-help-center">
+    <div class="bottom-sheet" style="max-height: 92vh;">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 1.35rem;">💬</span>
+          <div>
+            <h3 class="sheet-title" style="margin: 0;">Dúvidas & Sisters</h3>
+            <p style="font-size: 0.72rem; color: #636E72; margin: 0;">Conheça quem cuida do brechó com amor</p>
+          </div>
+        </div>
+        <button class="btn-close-sheet" id="btn-close-help">&times;</button>
+      </div>
+
+      <div class="help-sheet-body" style="padding: 14px 18px 30px; max-height: 78vh; overflow-y: auto;">
+        
+        <!-- Cartão com Vídeo/Foto de Apresentação das Meninas -->
+        <div class="help-video-card">
+          <div class="help-video-thumb-wrap" id="btn-play-help-video">
+            <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" alt="Sisters" class="help-video-img" id="help-video-media-img">
+            <div class="help-video-play-badge">
+              <span>▶ Assistir Vídeo das Sisters</span>
+            </div>
+          </div>
+          <div class="help-video-caption">
+            <h4 id="help-caption-title">Oi, bem-vinda ao Brechó Sisters! 💕</h4>
+            <p id="help-caption-text">Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀</p>
+          </div>
+        </div>
+
+        <!-- Seção: Dúvidas Frequentes (FAQ) -->
+        <div class="faq-section">
+          <h4 class="faq-section-title">✨ Dúvidas Frequentes das Mamães:</h4>
+          
+          <details class="faq-item" open>
+            <summary class="faq-question">🧺 As pecinhas são higienizadas?</summary>
+            <p class="faq-answer">Sim! Cada roupitcha passa por lavagem com sabão neutro hipoalergênico e vaporização antes de ir para a vitrine. Os calçados e brinquedos também são higienizados com carinho e cheirinho de amor.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">🛵 Como funciona a entrega e o raio de 2km?</summary>
+            <p class="faq-answer">Entregamos com motinho com taxa fixa de apenas <strong>R$ 5,00</strong> para bairros a até 2km do nosso brechó! Se preferir, a retirada no local é <strong>100% gratuita</strong> com horário combinado.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">💳 Quais são as formas de pagamento?</summary>
+            <p class="faq-answer">Trabalhamos com PIX direto para a chave oficial das Sisters ou pagamento em dinheiro na entrega/retirada. Você confere tudo certinho antes de pagar!</p>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-question">🏷️ As peças são novas ou usadas?</summary>
+            <p class="faq-answer">Trabalhamos com achadinhos selecionados a dedo: peças novas com etiqueta, peças usadas apenas 1 vez (para ensaios/festas) e peças em ótimo estado de conservação sem nenhuma avaria.</p>
+          </details>
+        </div>
+
+        <!-- Botão Oficial de WhatsApp -->
+        <a href="#" id="link-direct-whatsapp" target="_blank" class="btn-whatsapp-chat-highlight">
+          <span>💬</span> Falar com as Sisters no WhatsApp
+        </a>
+
+        <!-- Card de Indicação / Compartilhar -->
+        <div class="help-share-box">
+          <div class="help-share-icon">🎁</div>
+          <div class="help-share-text">
+            <strong>Espalhe essa fofura!</strong>
+            <p>Conhece alguma mamãe ou vovó que ama um garimpo infantil? Indique o Brechó Sisters no WhatsApp!</p>
+          </div>
+          <button type="button" class="btn-action-share" id="btn-share-shop-action">
+            📲 Indicar para Amigas
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================================
+       MODAL: PLAYER DE STORY / VÍDEO VERTICAL (POPUP QUANDO CLICA NO VÍDEO)
        ======================================================================== -->
   <div class="modal-story-view" id="modal-story-view">
     <div class="story-player-card">
@@ -605,7 +712,6 @@
         <button class="btn-close-story" id="btn-close-story">&times;</button>
       </div>
 
-      <!-- Vídeo ou Animação de Boas-Vindas -->
       <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" alt="Vídeo Sisters" class="story-media-content" id="story-media-img">
 
       <div class="story-caption-overlay">

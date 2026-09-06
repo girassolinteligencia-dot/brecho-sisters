@@ -1,6 +1,6 @@
 # 🌸 Brechó Sisters — Aplicativo Web Mobile-First
 
-Aplicativo web responsivo, doce e acolhedor para divulgação e venda de roupas, tênis e brinquedos infantis e juvenis com foco em facilidade absoluta (kids-friendly), geolocalização para entregas nas redondezas (raio de até 5km), rotas no Google Maps e contato humanizado via WhatsApp.
+Aplicativo web responsivo, doce e acolhedor para divulgação e venda de roupas, tênis e brinquedos infantis e juvenis com foco em facilidade absoluta (kids-friendly), geolocalização para entregas nas redondezas (raio de até 2km), rotas no Google Maps e contato humanizado via WhatsApp.
 
 ---
 
@@ -28,12 +28,12 @@ Aplicativo web responsivo, doce e acolhedor para divulgação e venda de roupas,
 3. **Sacolinha de Compras Inteligente**:
    * Sem cadastro ou login chato: salva no navegador (`localStorage`).
    * **Opção 1: Retirada no Brechó (Grátis)** — exibe o endereço das vendedoras com botão direto *"Ver Como Chegar no Google Maps"*.
-   * **Opção 2: Receber em Casa (Raio até 5km)**:
+   * **Opção 2: Receber em Casa (Raio até 2km)**:
      * Botão **"📍 Usar Minha Localização Atual"** (lê o GPS do celular com 1 toque).
      * Ou campo para digitar o endereço.
      * Calcula a distância com a fórmula de *Haversine*.
-     * Se estiver em até 5km: aplica a taxa de entrega configurada e cria a rota.
-     * Se passar de 5km: avisa carinhosamente que ultrapassou o raio e sugere retirada ou combinação especial.
+     * Se estiver em até 2km: aplica a taxa de entrega configurada e cria a rota.
+     * Se passar de 2km: avisa carinhosamente que ultrapassou o raio e sugere retirada ou combinação especial.
 4. **Fechamento Direto no WhatsApp (`wa.me`)**:
    * Gera uma mensagem formatada com emojis carinhosos, lista das peças, tamanhos, valores, modalidade escolhida, endereço do cliente, chave PIX e **link da rota pronta no Google Maps** para as irmãs ou entregador clicarem e navegarem no GPS!
 5. **⚙️ Painel Administrativo Completo**:
@@ -42,7 +42,7 @@ Aplicativo web responsivo, doce e acolhedor para divulgação e venda de roupas,
    * **Configurações do Brechó**:
      * Número do WhatsApp das vendedoras com DDD.
      * Endereço oficial de retirada (com botão para buscar coordenadas automáticas no mapa).
-     * Raio máximo de entrega em km (padrão: 5km).
+     * Raio máximo de entrega em km (padrão: 2km).
      * Taxa de entrega fixa (R$).
      * Chave PIX e titular para recebimento imediato com taxa zero.
 
