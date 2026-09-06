@@ -215,7 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProducts();
   updateCartBadges();
   setupEventListeners();
-  updateDeliveryUI();
+  selectDeliveryOption('pickup');
 });
 
 function initUI() {
@@ -378,59 +378,70 @@ function setupEventListeners() {
   const navFavs = document.getElementById('nav-favs');
   if (navFavs) navFavs.addEventListener('click', openFavoritesModal);
 
+  // Helper para registro seguro de eventos
+  const safeOn = (id, event, handler) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, handler);
+  };
+
   const btnCloseFavs = document.getElementById('btn-close-favs');
   if (btnCloseFavs) btnCloseFavs.addEventListener('click', closeFavoritesModal);
 
   // Botão de Abrir Sacola
-  document.getElementById('nav-cart').addEventListener('click', openCartModal);
+  safeOn('nav-cart', 'click', openCartModal);
 
   // Botões de Fechar Modais
-  document.getElementById('btn-close-details').addEventListener('click', closeDetailsModal);
-  document.getElementById('btn-close-cart').addEventListener('click', closeCartModal);
-  document.getElementById('btn-close-admin').addEventListener('click', closeAdminModal);
+  safeOn('btn-close-details', 'click', closeDetailsModal);
+  safeOn('btn-close-cart', 'click', closeCartModal);
+  safeOn('btn-close-admin', 'click', closeAdminModal);
 
   // Navegação da Bottom Bar (4 Botões do Cliente)
-  document.getElementById('nav-home').addEventListener('click', () => {
+  safeOn('nav-home', 'click', () => {
     setActiveBottomNav('nav-home');
     resetCategoryFilter();
     closeAllModais();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  document.getElementById('nav-cats').addEventListener('click', () => {
+  safeOn('nav-cats', 'click', () => {
     setActiveBottomNav('nav-cats');
     closeAllModais();
     const navCats = document.getElementById('categories-nav');
-    navCats.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    document.getElementById('search-input').focus();
+    if (navCats) navCats.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const sInput = document.getElementById('search-input');
+    if (sInput) sInput.focus();
     showToast('Escolha uma categoria ou busque sua peça! 🔍', '✨');
   });
 
   // Botão "Ver Vitrine" no carrinho vazio
-  document.getElementById('btn-start-shopping').addEventListener('click', () => {
+  safeOn('btn-start-shopping', 'click', () => {
     closeCartModal();
     resetCategoryFilter();
   });
 
   // Escolha de Retirada vs Entrega
-  document.getElementById('opt-pickup').addEventListener('click', () => selectDeliveryOption('pickup'));
-  document.getElementById('opt-delivery').addEventListener('click', () => selectDeliveryOption('delivery'));
+  safeOn('opt-pickup', 'click', () => selectDeliveryOption('pickup'));
+  safeOn('opt-delivery', 'click', () => selectDeliveryOption('delivery'));
 
   // Geolocalização no Carrinho
-  document.getElementById('btn-geo-locate').addEventListener('click', handleGPSLocation);
-  document.getElementById('btn-calc-address').addEventListener('click', handleAddressGeocode);
-  document.getElementById('input-customer-address').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddressGeocode();
-    }
+  safeOn('btn-geo-locate', 'click', handleGPSLocation);
+  safeOn('btn-calc-address', 'click', handleAddressGeocode);
+
+  // Suporte a pressionar Enter nos campos de endereço para calcular
+  ['cust-cep', 'cust-street', 'cust-number', 'cust-bairro', 'cust-complement'].forEach(fId => {
+    safeOn(fId, 'keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAddressGeocode();
+      }
+    });
   });
 
   // Inicialização das Máscaras e Eventos da Compradora
   setupInputMasks();
 
   // Botão Concluir no WhatsApp
-  document.getElementById('btn-submit-whatsapp').addEventListener('click', submitOrderViaWhatsApp);
+  safeOn('btn-submit-whatsapp', 'click', submitOrderViaWhatsApp);
 
   // Admin Events
   setupAdminEvents();
@@ -767,9 +778,11 @@ function updateCartBadges() {
   const headerBadge = document.getElementById('cart-badge-count');
   const bottomBadge = document.getElementById('bottom-cart-badge');
 
-  headerBadge.textContent = count;
-  bottomBadge.textContent = count;
-  bottomBadge.style.display = count > 0 ? 'flex' : 'none';
+  if (headerBadge) headerBadge.textContent = count;
+  if (bottomBadge) {
+    bottomBadge.textContent = count;
+    bottomBadge.style.display = count > 0 ? 'flex' : 'none';
+  }
 }
 
 function openCartModal() {
@@ -1136,14 +1149,22 @@ function closeAdminModal() {
 }
 
 function setupAdminEvents() {
+  const safeOn = (id, event, handler) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener(event, handler);
+  };
+
   // Login com verificação SHA-256 criptografada
-  document.getElementById('btn-admin-login').addEventListener('click', async () => {
-    const pass = document.getElementById('admin-password-input').value.trim();
+  safeOn('btn-admin-login', 'click', async () => {
+    const passInput = document.getElementById('admin-password-input');
+    const pass = passInput ? passInput.value.trim() : '';
     const inputHash = await sha256Hex(pass);
     const expectedHash = appConfig.adminPasswordHash || '112bca87455d673dba92c8b7b838d519ee6ce35dbf5e6537d953b4ff3cc7e3ec';
     if (inputHash === expectedHash || (appConfig.adminPassword && pass === appConfig.adminPassword)) {
-      document.getElementById('admin-login-view').style.display = 'none';
-      document.getElementById('admin-dashboard-view').style.display = 'block';
+      const loginView = document.getElementById('admin-login-view');
+      const dashView = document.getElementById('admin-dashboard-view');
+      if (loginView) loginView.style.display = 'none';
+      if (dashView) dashView.style.display = 'block';
       loadAdminData();
     } else {
       alert('Senha incorreta das Sisters!');
@@ -1169,42 +1190,48 @@ function setupAdminEvents() {
         if (c) c.style.display = 'none';
       });
       btnEl.classList.add('active');
-      document.getElementById(content).style.display = 'block';
+      const cEl = document.getElementById(content);
+      if (cEl) cEl.style.display = 'block';
       if (btn === 'tab-btn-parents') renderParentsDashboard();
       if (btn === 'tab-btn-orders') renderOrdersList();
     });
   });
 
   // Exportar Relatório CSV
-  document.getElementById('btn-export-sales-csv').addEventListener('click', exportOrdersCSV);
+  safeOn('btn-export-sales-csv', 'click', exportOrdersCSV);
 
   // Mostrar form de adicionar produto
-  document.getElementById('btn-show-add-product').addEventListener('click', () => {
-    document.getElementById('form-product').reset();
-    document.getElementById('prod-form-id').value = '';
-    document.getElementById('form-product-title').textContent = 'Cadastrar Nova Peça 🎀';
-    document.getElementById('form-product').style.display = 'block';
+  safeOn('btn-show-add-product', 'click', () => {
+    const form = document.getElementById('form-product');
+    if (form) form.reset();
+    const pId = document.getElementById('prod-form-id');
+    if (pId) pId.value = '';
+    const title = document.getElementById('form-product-title');
+    if (title) title.textContent = 'Cadastrar Nova Peça 🎀';
+    if (form) form.style.display = 'block';
   });
 
-  document.getElementById('btn-cancel-product').addEventListener('click', () => {
-    document.getElementById('form-product').style.display = 'none';
+  safeOn('btn-cancel-product', 'click', () => {
+    const form = document.getElementById('form-product');
+    if (form) form.style.display = 'none';
   });
 
   // Submissão do formulário de produto
-  document.getElementById('form-product').addEventListener('submit', (e) => {
+  safeOn('form-product', 'submit', (e) => {
     e.preventDefault();
     saveProductFromForm();
   });
 
   // Submissão do formulário de configuração
-  document.getElementById('form-config').addEventListener('submit', (e) => {
+  safeOn('form-config', 'submit', (e) => {
     e.preventDefault();
     saveConfigFromForm();
   });
 
   // Buscar coordenadas do endereço da vendedora automaticamente
-  document.getElementById('btn-get-seller-coords').addEventListener('click', async () => {
-    const address = document.getElementById('cfg-address').value.trim();
+  safeOn('btn-get-seller-coords', 'click', async () => {
+    const addrInput = document.getElementById('cfg-address');
+    const address = addrInput ? addrInput.value.trim() : '';
     if (!address) {
       alert('Digite o endereço primeiro.');
       return;
