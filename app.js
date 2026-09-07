@@ -64,6 +64,11 @@ const DEFAULT_PRODUCTS = [
     condition: 'usado-1x',
     conditionLabel: '✨ Usado 1 vez',
     image: 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1596870230751-ebdfce98ec42?auto=format&fit=crop&w=600&q=80'
+    ],
     desc: 'Vestidinho 100% algodão super macio com forro leve e estampa floral delicada. Usado apenas em um aniversário!',
     status: 'disponivel'
   },
@@ -76,6 +81,10 @@ const DEFAULT_PRODUCTS = [
     condition: 'otimo',
     conditionLabel: '💕 Em Ótimo Estado',
     image: 'https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1514989940723-e8e51635b782?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=600&q=80'
+    ],
     desc: 'Solado flexível antiderrapante e fechamento prático em velcro para a própria criança calçar com autonomia.',
     status: 'disponivel'
   },
@@ -88,6 +97,11 @@ const DEFAULT_PRODUCTS = [
     condition: 'novo',
     conditionLabel: '🏷️ Novo com Etiqueta',
     image: 'https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1559454403-b8fb88521f11?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&q=80'
+    ],
     desc: 'Pelúcia higienizada, hipoalergênica e lavável. Nunca usada, ainda na embalagem original.',
     status: 'disponivel'
   },
@@ -100,6 +114,10 @@ const DEFAULT_PRODUCTS = [
     condition: 'otimo',
     conditionLabel: '💕 Em Ótimo Estado',
     image: 'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?auto=format&fit=crop&w=600&q=80'
+    ],
     desc: 'Jeans com toque de moletom super confortável que estica e não aperta na hora de brincar no parque!',
     status: 'disponivel'
   },
@@ -112,6 +130,9 @@ const DEFAULT_PRODUCTS = [
     condition: 'otimo',
     conditionLabel: '💕 Em Ótimo Estado',
     image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&w=600&q=80'
+    ],
     desc: 'Blocos grandes seguros para crianças a partir de 2 anos. Estimula a criatividade e a coordenação motora.',
     status: 'disponivel'
   },
@@ -124,6 +145,9 @@ const DEFAULT_PRODUCTS = [
     condition: 'usado-1x',
     conditionLabel: '✨ Usado 1 vez',
     image: 'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&w=600&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1546938576-6e6a64f317cc?auto=format&fit=crop&w=600&q=80'
+    ],
     desc: 'Mochila com alças acolchoadas em tons pastéis de arco-íris. Ideal para passeios e escolinha.',
     status: 'disponivel'
   }
@@ -195,7 +219,14 @@ const AppStorage = {
   },
   getProducts() {
     const data = localStorage.getItem('brecho_sisters_products');
-    return data ? JSON.parse(data) : DEFAULT_PRODUCTS;
+    let prods = data ? JSON.parse(data) : DEFAULT_PRODUCTS;
+    return prods.map(p => {
+      if (!p.images || !Array.isArray(p.images) || p.images.length === 0) {
+        p.images = [p.image || 'icon.svg'];
+      }
+      p.image = p.images[0];
+      return p;
+    });
   },
   saveProducts(prods) {
     localStorage.setItem('brecho_sisters_products', JSON.stringify(prods));
@@ -823,12 +854,18 @@ function renderProducts(category = 'todas', query = '') {
       statusOverlay = `<div class="badge-status-sold" style="background: rgba(243, 156, 18, 0.85)">RESERVADO ✨</div>`;
     }
 
+    let photoBadge = '';
+    if (prod.images && prod.images.length > 1) {
+      photoBadge = `<span class="badge-photo-count">📸 ${prod.images.length} fotos</span>`;
+    }
+
     card.innerHTML = `
       <div class="product-thumb-wrap" onclick="openProductDetails('${prod.id}')">
         <img src="${prod.image}" alt="${prod.name}" class="product-thumb" loading="lazy" onerror="this.src='icon.svg'">
         <button type="button" class="btn-fav-card ${isFav ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavorite('${prod.id}')" title="${isFav ? 'Remover dos favoritos' : 'Favoritar peça'}">
           ${isFav ? '❤️' : '🤍'}
         </button>
+        ${photoBadge}
         ${conditionBadge}
         <span class="badge-size">${prod.size}</span>
         ${statusOverlay}
@@ -867,8 +904,85 @@ function formatCategory(cat) {
 }
 
 // ============================================================================
-// MODAL DE DETALHES DO PRODUTO (BOTTOM SHEET)
+// MODAL DE DETALHES DO PRODUTO COM LÂMINAS DE VIDRO (GLASS SLIDER - ATÉ 4 FOTOS)
 // ============================================================================
+
+let currentGalleryIndex = 0;
+let currentGalleryImages = [];
+
+function updateGlassSlides() {
+  const container = document.getElementById('glass-gallery-container');
+  if (!container) return;
+  const slides = container.querySelectorAll('.glass-slide');
+  const dots = container.querySelectorAll('.glass-dot');
+  const counterNum = document.getElementById('glass-current-num');
+
+  if (counterNum) counterNum.textContent = (currentGalleryIndex + 1);
+
+  slides.forEach((slide, idx) => {
+    slide.classList.remove('active', 'prev', 'next');
+    if (idx === currentGalleryIndex) {
+      slide.classList.add('active');
+    } else if (idx < currentGalleryIndex) {
+      slide.classList.add('prev');
+    } else {
+      slide.classList.add('next');
+    }
+  });
+
+  dots.forEach((dot, idx) => {
+    dot.classList.toggle('active', idx === currentGalleryIndex);
+  });
+}
+
+function nextGlassSlide() {
+  if (currentGalleryImages.length <= 1) return;
+  currentGalleryIndex = (currentGalleryIndex + 1) % currentGalleryImages.length;
+  updateGlassSlides();
+}
+
+function prevGlassSlide() {
+  if (currentGalleryImages.length <= 1) return;
+  currentGalleryIndex = (currentGalleryIndex - 1 + currentGalleryImages.length) % currentGalleryImages.length;
+  updateGlassSlides();
+}
+
+function goToGlassSlide(index) {
+  if (index >= 0 && index < currentGalleryImages.length) {
+    currentGalleryIndex = index;
+    updateGlassSlides();
+  }
+}
+
+function attachGlassGalleryTouchGestures() {
+  const stage = document.getElementById('glass-gallery-stage');
+  if (!stage) return;
+  let startX = 0;
+
+  stage.addEventListener('touchstart', (e) => {
+    if (e.touches && e.touches.length === 1) {
+      startX = e.touches[0].clientX;
+    }
+  }, { passive: true });
+
+  stage.addEventListener('touchend', (e) => {
+    if (e.changedTouches && e.changedTouches.length === 1) {
+      const endX = e.changedTouches[0].clientX;
+      const diff = startX - endX;
+      if (Math.abs(diff) > 35) {
+        if (diff > 0) {
+          nextGlassSlide();
+        } else {
+          prevGlassSlide();
+        }
+      }
+    }
+  }, { passive: true });
+}
+
+window.nextGlassSlide = nextGlassSlide;
+window.prevGlassSlide = prevGlassSlide;
+window.goToGlassSlide = goToGlassSlide;
 
 function openProductDetails(id) {
   const prod = productsList.find(p => p.id === id);
@@ -882,13 +996,62 @@ function openProductDetails(id) {
   const inCart = cartItems.some(i => i.id === prod.id);
   const isSold = prod.status === 'vendido';
 
-  body.innerHTML = `
-    <div style="position: relative; width: 100%; aspect-ratio: 1/1; border-radius: var(--radius-md); overflow: hidden; margin-bottom: 14px; box-shadow: var(--shadow-sm);">
-      <img src="${prod.image}" alt="${prod.name}" style="width: 100%; height: 100%; object-fit: cover;">
-      <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.92); padding: 4px 10px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.85rem;">
+  // Array de até 4 fotos com fallback para prod.image
+  let images = Array.isArray(prod.images) && prod.images.length > 0 ? prod.images : [prod.image || 'icon.svg'];
+  images = images.slice(0, 4);
+
+  currentGalleryImages = images;
+  currentGalleryIndex = 0;
+
+  const hasMultiple = images.length > 1;
+
+  let slidesHtml = '';
+  images.forEach((imgSrc, idx) => {
+    let stateClass = '';
+    if (idx === 0) stateClass = 'active';
+    else if (idx === 1) stateClass = 'next';
+
+    slidesHtml += `
+      <div class="glass-slide ${stateClass}" data-slide-index="${idx}" onclick="nextGlassSlide()" title="${hasMultiple ? 'Toque para ver próxima foto' : ''}">
+        <img src="${imgSrc}" alt="${prod.name} - Foto ${idx + 1}" onerror="this.src='icon.svg'">
+      </div>
+    `;
+  });
+
+  let dotsHtml = '';
+  if (hasMultiple) {
+    dotsHtml = `
+      <div class="glass-dots-bar">
+        ${images.map((_, idx) => `
+          <div class="glass-dot ${idx === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToGlassSlide(${idx})" title="Foto ${idx + 1}"></div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  const galleryHtml = `
+    <div class="glass-gallery-container" id="glass-gallery-container">
+      <div class="glass-gallery-stage" id="glass-gallery-stage">
+        ${slidesHtml}
+      </div>
+
+      ${hasMultiple ? `
+        <div class="glass-counter-pill" id="glass-counter-pill">
+          📸 <span id="glass-current-num">1</span> de ${images.length}
+        </div>
+        <button type="button" class="btn-glass-nav prev" onclick="event.stopPropagation(); prevGlassSlide()" aria-label="Foto anterior" title="Foto anterior">‹</button>
+        <button type="button" class="btn-glass-nav next" onclick="event.stopPropagation(); nextGlassSlide()" aria-label="Próxima foto" title="Próxima foto">›</button>
+        ${dotsHtml}
+      ` : ''}
+
+      <span style="position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.92); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); padding: 4px 10px; border-radius: var(--radius-sm); font-weight: 800; font-size: 0.85rem; z-index: 4; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
         ${prod.size}
       </span>
     </div>
+  `;
+
+  body.innerHTML = `
+    ${galleryHtml}
 
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
       <span style="font-size: 0.85rem; font-weight: 700; color: #636E72;">${formatCategory(prod.category)}</span>
@@ -925,6 +1088,10 @@ function openProductDetails(id) {
 
   modal.classList.add('active');
   ModalHistoryManager.push('modal-product-details');
+
+  if (hasMultiple) {
+    attachGlassGalleryTouchGestures();
+  }
 }
 
 function closeDetailsModal(fromPopstate = false) {
@@ -1474,6 +1641,8 @@ function setupAdminEvents() {
     if (pId) pId.value = '';
     const title = document.getElementById('form-product-title');
     if (title) title.textContent = 'Cadastrar Nova Peça 🎀';
+    adminFormPhotos = [];
+    renderAdminPhotosGrid();
     if (form) form.style.display = 'block';
   });
 
@@ -1481,6 +1650,10 @@ function setupAdminEvents() {
     const form = document.getElementById('form-product');
     if (form) form.style.display = 'none';
   });
+
+  // Upload e Inserção de Fotos da Peça (Até 4 fotos)
+  safeOn('btn-add-img-url', 'click', addAdminPhotoFromUrl);
+  safeOn('prod-form-img-file', 'change', handleAdminPhotoFile);
 
   // Submissão do formulário de produto
   safeOn('form-product', 'submit', (e) => {
@@ -1803,13 +1976,15 @@ function renderAdminProductsList() {
   productsList.forEach(prod => {
     const row = document.createElement('div');
     row.className = 'admin-product-row';
+    const photoCountText = (prod.images && prod.images.length > 1) ? `📸 ${prod.images.length} fotos` : '📸 1 foto';
+
     row.innerHTML = `
       <div class="admin-prod-meta">
         <img src="${prod.image}" alt="${prod.name}" class="admin-prod-thumb" onerror="this.src='icon.svg'">
         <div>
           <strong style="font-size: 0.85rem;">${prod.name}</strong>
           <div style="font-size: 0.72rem; color: #636E72;">
-            ${prod.size} • R$ ${prod.price.toFixed(2).replace('.', ',')} • 
+            ${prod.size} • R$ ${prod.price.toFixed(2).replace('.', ',')} • ${photoCountText} • 
             <span style="font-weight: 800; color: ${prod.status === 'disponivel' ? '#00B894' : '#E17055'}">
               ${prod.status.toUpperCase()}
             </span>
@@ -1828,6 +2003,131 @@ function renderAdminProductsList() {
   });
 }
 
+// ============================================================================
+// GESTÃO DE FOTOS DA PEÇA NO PAINEL ADMIN (ATÉ 4 FOTOS)
+// ============================================================================
+let adminFormPhotos = [];
+
+function renderAdminPhotosGrid() {
+  const grid = document.getElementById('admin-photos-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  adminFormPhotos.forEach((photoUrl, idx) => {
+    const slot = document.createElement('div');
+    slot.className = 'admin-photo-slot';
+    const isCover = idx === 0;
+    slot.innerHTML = `
+      <img src="${photoUrl}" alt="Foto ${idx + 1}" onerror="this.src='icon.svg'">
+      <span class="slot-label">${isCover ? '⭐ Capa Vitrine' : `Foto ${idx + 1}`}</span>
+      <button type="button" class="btn-del-photo" onclick="removeAdminPhoto(${idx})" title="Remover esta foto">✕</button>
+    `;
+    grid.appendChild(slot);
+  });
+
+  if (adminFormPhotos.length < 4) {
+    const addSlot = document.createElement('div');
+    addSlot.className = 'admin-photo-slot add-slot';
+    addSlot.title = 'Clique para escolher foto do seu computador ou celular (até 4 fotos)';
+    addSlot.onclick = () => {
+      const fileInput = document.getElementById('prod-form-img-file');
+      if (fileInput) fileInput.click();
+    };
+    addSlot.innerHTML = `
+      <div style="font-size: 1.4rem;">➕</div>
+      <span style="font-size: 0.65rem; font-weight: 800; color: #BA75E3; margin-top: 3px;">
+        ${adminFormPhotos.length === 0 ? 'Add Capa' : `Add Foto ${adminFormPhotos.length + 1}`}
+      </span>
+    `;
+    grid.appendChild(addSlot);
+  }
+
+  const hiddenUrl = document.getElementById('prod-form-img-url');
+  if (hiddenUrl) {
+    hiddenUrl.value = adminFormPhotos.length > 0 ? adminFormPhotos[0] : '';
+  }
+}
+
+function removeAdminPhoto(idx) {
+  if (idx >= 0 && idx < adminFormPhotos.length) {
+    adminFormPhotos.splice(idx, 1);
+    renderAdminPhotosGrid();
+  }
+}
+
+function addAdminPhotoFromUrl() {
+  const input = document.getElementById('prod-form-img-url-input');
+  if (!input) return;
+  const url = input.value.trim();
+  if (!url) {
+    showToast('Cole o link da foto da internet!', '⚠️');
+    return;
+  }
+  if (adminFormPhotos.length >= 4) {
+    showToast('Limite máximo de 4 fotos atingido!', '⚠️');
+    return;
+  }
+  adminFormPhotos.push(url);
+  input.value = '';
+  renderAdminPhotosGrid();
+  showToast(`Foto ${adminFormPhotos.length} adicionada!`, '📸');
+}
+
+function handleAdminPhotoFile(e) {
+  const files = e.target.files;
+  if (!files || !files[0]) return;
+  if (adminFormPhotos.length >= 4) {
+    showToast('Limite de 4 fotos por peça!', '⚠️');
+    e.target.value = '';
+    return;
+  }
+
+  compressImageFile(files[0], (compressedDataUrl) => {
+    adminFormPhotos.push(compressedDataUrl);
+    e.target.value = '';
+    renderAdminPhotosGrid();
+    showToast(`Foto ${adminFormPhotos.length} anexada com sucesso!`, '📸');
+  });
+}
+
+// Comprime imagem para economizar espaço mantendo alta nitidez
+function compressImageFile(file, callback) {
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxDim = 800;
+      let width = img.width;
+      let height = img.height;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      let dataUrl = canvas.toDataURL('image/webp', 0.82);
+      if (!dataUrl.startsWith('data:image/webp')) {
+        dataUrl = canvas.toDataURL('image/jpeg', 0.82);
+      }
+      callback(dataUrl);
+    };
+    img.onerror = () => callback(event.target.result);
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+window.removeAdminPhoto = removeAdminPhoto;
+
 function saveProductFromForm() {
   const idInput = document.getElementById('prod-form-id').value;
   const name = document.getElementById('prod-form-name').value.trim();
@@ -1835,52 +2135,51 @@ function saveProductFromForm() {
   const size = document.getElementById('prod-form-size').value.trim();
   const price = parseFloat(document.getElementById('prod-form-price').value);
   const condition = document.getElementById('prod-form-condition').value;
-  const imgUrl = document.getElementById('prod-form-img-url').value.trim();
-  const fileInput = document.getElementById('prod-form-img-file');
   const desc = document.getElementById('prod-form-desc').value.trim();
+
+  if (!name || isNaN(price)) {
+    alert('Preencha o nome da peça e um preço válido!');
+    return;
+  }
 
   let conditionLabel = '💕 Em Ótimo Estado';
   if (condition === 'novo') conditionLabel = '🏷️ Novo com Etiqueta';
   if (condition === 'usado-1x') conditionLabel = '✨ Usado 1 vez';
 
-  const onImageReady = (finalImage) => {
-    if (idInput) {
-      // Editar
-      const idx = productsList.findIndex(p => p.id === idInput);
-      if (idx > -1) {
-        productsList[idx] = {
-          ...productsList[idx],
-          name, category, size, price, condition, conditionLabel,
-          image: finalImage || productsList[idx].image,
-          desc
-        };
-      }
-    } else {
-      // Novo
-      const newProd = {
-        id: 'prod-' + Date.now(),
+  const defaultPlaceholder = 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80';
+  const finalImages = adminFormPhotos.length > 0 ? [...adminFormPhotos] : [defaultPlaceholder];
+  const finalImage = finalImages[0];
+
+  if (idInput) {
+    // Editar
+    const idx = productsList.findIndex(p => p.id === idInput);
+    if (idx > -1) {
+      productsList[idx] = {
+        ...productsList[idx],
         name, category, size, price, condition, conditionLabel,
-        image: finalImage || 'https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80',
-        desc,
-        status: 'disponivel'
+        image: finalImage,
+        images: finalImages,
+        desc
       };
-      productsList.unshift(newProd);
     }
-
-    AppStorage.saveProducts(productsList);
-    renderProducts();
-    renderAdminProductsList();
-    document.getElementById('form-product').style.display = 'none';
-    showToast('Peça salva com sucesso!', '✨');
-  };
-
-  if (fileInput.files && fileInput.files[0]) {
-    const reader = new FileReader();
-    reader.onload = (e) => onImageReady(e.target.result);
-    reader.readAsDataURL(fileInput.files[0]);
   } else {
-    onImageReady(imgUrl);
+    // Novo
+    const newProd = {
+      id: 'prod-' + Date.now(),
+      name, category, size, price, condition, conditionLabel,
+      image: finalImage,
+      images: finalImages,
+      desc,
+      status: 'disponivel'
+    };
+    productsList.unshift(newProd);
   }
+
+  AppStorage.saveProducts(productsList);
+  renderProducts();
+  renderAdminProductsList();
+  document.getElementById('form-product').style.display = 'none';
+  showToast('Peça salva com sucesso!', '✨');
 }
 
 function editProductAdmin(id) {
@@ -1893,8 +2192,16 @@ function editProductAdmin(id) {
   document.getElementById('prod-form-size').value = prod.size;
   document.getElementById('prod-form-price').value = prod.price;
   document.getElementById('prod-form-condition').value = prod.condition;
-  document.getElementById('prod-form-img-url').value = prod.image;
   document.getElementById('prod-form-desc').value = prod.desc || '';
+
+  if (Array.isArray(prod.images) && prod.images.length > 0) {
+    adminFormPhotos = [...prod.images];
+  } else if (prod.image) {
+    adminFormPhotos = [prod.image];
+  } else {
+    adminFormPhotos = [];
+  }
+  renderAdminPhotosGrid();
 
   document.getElementById('form-product-title').textContent = 'Editar Peça ✏️';
   document.getElementById('form-product').style.display = 'block';

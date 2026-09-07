@@ -371,9 +371,17 @@
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">Foto da Peça (URL ou Escolher Imagem):</label>
-              <input type="text" id="prod-form-img-url" class="admin-input" placeholder="Link da foto na internet...">
-              <input type="file" id="prod-form-img-file" accept="image/*" style="font-size: 0.8rem; margin-top: 4px;">
+              <label class="admin-label">📸 Fotos da Peça (Até 4 fotos • A 1ª é a Capa da Vitrine):</label>
+              <div id="admin-photos-grid" class="admin-photos-grid">
+                <!-- Miniaturas das fotos de 1 a 4 renderizadas dinamicamente via app.js -->
+              </div>
+              <input type="file" id="prod-form-img-file" accept="image/*" style="display: none;">
+              <input type="hidden" id="prod-form-img-url">
+
+              <div style="display: flex; gap: 6px; margin-top: 6px;">
+                <input type="text" id="prod-form-img-url-input" class="admin-input" placeholder="Ou cole o link de uma imagem da internet..." style="font-size: 0.8rem; padding: 7px 10px;">
+                <button type="button" id="btn-add-img-url" class="btn-admin-action" style="background: #E2CBF7; color: #4A154B; white-space: nowrap; font-size: 0.78rem; padding: 7px 12px;">➕ Inserir Link</button>
+              </div>
             </div>
 
             <div class="admin-form-group">
