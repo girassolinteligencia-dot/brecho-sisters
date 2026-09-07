@@ -314,6 +314,8 @@
           <button class="admin-tab-btn" id="tab-btn-orders">📋 Pedidos</button>
           <button class="admin-tab-btn" id="tab-btn-parents">📊 Gestão dos Pais</button>
           <button class="admin-tab-btn" id="tab-btn-config">⚙️ Parâmetros</button>
+          <button class="admin-tab-btn" id="tab-btn-faq">💬 Dúvidas FAQ</button>
+          <button class="admin-tab-btn" id="tab-btn-stories">✨ Stories</button>
         </div>
 
         <!-- ABA 1: GERENCIAR PEÇAS & ESTOQUE (ESPAÇO DAS SISTERS) -->
@@ -552,8 +554,14 @@
             </div>
 
             <div class="admin-form-group">
-              <label class="admin-label">🎬 Link do Vídeo/Foto de Boas-Vindas das Sisters (URL):</label>
-              <input type="url" id="cfg-video-url" class="admin-input" placeholder="https://... ou imagem/vídeo mp4">
+              <label class="admin-label">🎬 Link do Vídeo/Foto de Boas-Vindas das Sisters (URL ou MP4/WebM):</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="url" id="cfg-video-url" class="admin-input" placeholder="https://... ou imagem/vídeo mp4/webm" style="flex: 1;">
+                <button type="button" id="btn-preview-video-cfg" style="padding: 0 12px; background: var(--pastel-blue); border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.8rem; cursor: pointer; white-space: nowrap;">▶ Ver</button>
+              </div>
+              <small style="font-size: 0.72rem; color: #718096; margin-top: 2px;">
+                💡 Dica: Vídeos verticais compactos (720p, até 3MB) em MP4/WebM carregam instantaneamente no celular!
+              </small>
             </div>
 
             <div class="admin-form-group">
@@ -570,6 +578,105 @@
               Salvar Todas as Configurações 💾
             </button>
           </form>
+
+          <!-- SEÇÃO: SEGURANÇA & ALTERAÇÃO DE SENHA -->
+          <div class="admin-password-box" style="margin-top: 24px; padding: 14px; background: #FFF5F7; border: 2px dashed var(--pastel-pink); border-radius: var(--radius-sm);">
+            <h4 style="font-family: 'Fredoka', cursive; font-size: 0.95rem; margin-bottom: 8px; color: #7B112D;">
+              🔒 Alterar Senha de Acesso do Painel
+            </h4>
+            <div class="admin-form-group">
+              <label class="admin-label">Nova Senha de Acesso:</label>
+              <input type="password" id="cfg-new-password" class="admin-input" placeholder="Mínimo 4 caracteres...">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-label">Confirmar Nova Senha:</label>
+              <input type="password" id="cfg-confirm-password" class="admin-input" placeholder="Repita a nova senha...">
+            </div>
+            <button type="button" class="admin-btn-save" id="btn-change-admin-pwd" style="background: linear-gradient(135deg, var(--pastel-pink-dark), #FF477E); color: #FFF; font-size: 0.92rem; padding: 10px;">
+              Atualizar Senha 🔐
+            </button>
+          </div>
+        </div>
+
+        <!-- ABA 5: GERENCIAR DÚVIDAS FREQUENTES (FAQ) -->
+        <div id="admin-tab-faq-content" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <div>
+              <h4 style="font-family: 'Fredoka', cursive; font-size: 1rem; margin: 0;">Dúvidas das Mamães (FAQ)</h4>
+              <p style="font-size: 0.72rem; color: #636E72; margin: 0;">Personalize o que as clientes veem na Central de Ajuda</p>
+            </div>
+            <button type="button" class="btn-add-cart" id="btn-show-add-faq" style="background: var(--pastel-mint); color: #1B4D3E; font-size: 0.82rem; padding: 6px 12px;">
+              ➕ Nova Dúvida
+            </button>
+          </div>
+
+          <!-- Formulário de Pergunta do FAQ -->
+          <form id="form-faq" style="display: none; background: #FDFBF7; padding: 14px; border-radius: var(--radius-sm); border: 2px dashed #E2CBF7; margin-bottom: 16px;">
+            <h4 style="font-family: 'Fredoka', cursive; margin-bottom: 10px;" id="form-faq-title">Nova Dúvida 💬</h4>
+            <input type="hidden" id="faq-form-id">
+
+            <div class="admin-form-group">
+              <label class="admin-label">Pergunta (com emoji):</label>
+              <input type="text" id="faq-form-question" class="admin-input" placeholder="Ex: 🧺 As peças são higienizadas?" required>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">Resposta Explicativa:</label>
+              <textarea id="faq-form-answer" class="admin-textarea" rows="3" placeholder="Explique com carinho os detalhes para a mamãe..." required></textarea>
+            </div>
+
+            <div style="display: flex; gap: 8px;">
+              <button type="submit" class="admin-btn-save" style="flex: 2;">Salvar Dúvida 💾</button>
+              <button type="button" id="btn-cancel-faq" style="flex: 1; border: none; background: #E2E8F0; border-radius: var(--radius-md); font-weight: 700; cursor: pointer;">Cancelar</button>
+            </div>
+          </form>
+
+          <!-- Lista de Dúvidas Cadastradas -->
+          <div id="admin-faq-list">
+            <!-- Renderizado dinamicamente via app.js -->
+          </div>
+        </div>
+
+        <!-- ABA 6: GERENCIAR STORIES DA SEMANA & VÍDEOS -->
+        <div id="admin-tab-stories-content" style="display: none;">
+          <div style="margin-bottom: 14px;">
+            <h4 style="font-family: 'Fredoka', cursive; font-size: 1rem; margin: 0;">Stories & Apresentações ✨</h4>
+            <p style="font-size: 0.72rem; color: #636E72; margin: 0;">Edite os vídeos, fotos e textos dos stories do brechó</p>
+          </div>
+
+          <!-- Formulário de Edição de Story -->
+          <form id="form-story" style="display: none; background: #FDFBF7; padding: 14px; border-radius: var(--radius-sm); border: 2px dashed #B2E2F8; margin-bottom: 16px;">
+            <h4 style="font-family: 'Fredoka', cursive; margin-bottom: 10px;" id="form-story-title">Editar Story ✨</h4>
+            <input type="hidden" id="story-form-id">
+
+            <div class="admin-form-group">
+              <label class="admin-label">Título do Story:</label>
+              <input type="text" id="story-form-title" class="admin-input" placeholder="Ex: Higienização com Amor 🧼" required>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">Texto / Descrição:</label>
+              <textarea id="story-form-text" class="admin-textarea" rows="3" placeholder="Mensagem exibida sobre o story..." required></textarea>
+            </div>
+
+            <div class="admin-form-group">
+              <label class="admin-label">Link da Mídia (Foto ou Vídeo MP4/WebM):</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="url" id="story-form-media" class="admin-input" placeholder="https://... ou imagem/vídeo" required style="flex: 1;">
+                <button type="button" id="btn-test-story-media" style="padding: 0 10px; background: var(--pastel-blue); border: none; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.78rem; cursor: pointer;">▶ Testar</button>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+              <button type="submit" class="admin-btn-save" style="flex: 2;">Atualizar Story 💖</button>
+              <button type="button" id="btn-cancel-story" style="flex: 1; border: none; background: #E2E8F0; border-radius: var(--radius-md); font-weight: 700; cursor: pointer;">Cancelar</button>
+            </div>
+          </form>
+
+          <!-- Lista de Stories Atuais -->
+          <div id="admin-stories-list">
+            <!-- Renderizado dinamicamente via app.js -->
+          </div>
         </div>
       </div><!-- /admin-dashboard-view -->
     </div>
@@ -660,29 +767,13 @@
           </div>
         </div>
 
-        <!-- Seção: Dúvidas Frequentes (FAQ) -->
+        <!-- Seção: Dúvidas Frequentes (FAQ Dinâmico) -->
         <div class="faq-section">
           <h4 class="faq-section-title">✨ Dúvidas Frequentes das Mamães:</h4>
           
-          <details class="faq-item" open>
-            <summary class="faq-question">🧺 As pecinhas são higienizadas?</summary>
-            <p class="faq-answer">Sim! Cada roupitcha passa por lavagem com sabão neutro hipoalergênico e vaporização antes de ir para a vitrine. Os calçados e brinquedos também são higienizados com carinho e cheirinho de amor.</p>
-          </details>
-
-          <details class="faq-item">
-            <summary class="faq-question">🛵 Como funciona a entrega e o raio de 2km?</summary>
-            <p class="faq-answer">Entregamos com motinho com taxa fixa de apenas <strong>R$ 5,00</strong> para bairros a até 2km do nosso brechó! Se preferir, a retirada no local é <strong>100% gratuita</strong> com horário combinado.</p>
-          </details>
-
-          <details class="faq-item">
-            <summary class="faq-question">💳 Quais são as formas de pagamento?</summary>
-            <p class="faq-answer">Trabalhamos com PIX direto para a chave oficial das Sisters ou pagamento em dinheiro na entrega/retirada. Você confere tudo certinho antes de pagar!</p>
-          </details>
-
-          <details class="faq-item">
-            <summary class="faq-question">🏷️ As peças são novas ou usadas?</summary>
-            <p class="faq-answer">Trabalhamos com achadinhos selecionados a dedo: peças novas com etiqueta, peças usadas apenas 1 vez (para ensaios/festas) e peças em ótimo estado de conservação sem nenhuma avaria.</p>
-          </details>
+          <div id="faq-accordion-list">
+            <!-- Renderizado dinamicamente via app.js -->
+          </div>
         </div>
 
         <!-- Botão Oficial de WhatsApp -->
@@ -721,10 +812,15 @@
           <img src="icon.svg" alt="Avatar Sisters" class="story-author-avatar">
           <span class="story-author-name">Brechó Sisters 🌸</span>
         </div>
-        <button class="btn-close-story" id="btn-close-story">&times;</button>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <button class="btn-story-sound" id="btn-story-sound" title="Ativar/Desativar Som" style="display: none;">🔇</button>
+          <button class="btn-close-story" id="btn-close-story">&times;</button>
+        </div>
       </div>
 
+      <!-- Mídia Híbrida: Imagem ou Vídeo nativo MP4/WebM -->
       <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85" alt="Vídeo Sisters" class="story-media-content" id="story-media-img">
+      <video class="story-media-content" id="story-media-video" playsinline loop muted style="display: none;"></video>
 
       <div class="story-caption-overlay">
         <h4 class="story-caption-title" id="story-caption-title">Oi, bem-vindo ao Brechó Sisters! 💕</h4>

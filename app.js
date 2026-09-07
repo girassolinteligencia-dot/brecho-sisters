@@ -19,7 +19,39 @@ const DEFAULT_CONFIG = {
   adminPasswordHash: '112bca87455d673dba92c8b7b838d519ee6ce35dbf5e6537d953b4ff3cc7e3ec', // sisters123
   videoUrl: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85',
   welcomeMsg: 'Oi, bem-vindo ao Brechó Sisters! 💕 Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀',
-  deliveryRules: '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 2km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 2km, consulte frete especial diretamente com as Sisters no WhatsApp.'
+  deliveryRules: '🌸 Entregamos com motinho com todo carinho nas redondezas (raio de até 2km do nosso brechó) por taxa fixa de apenas R$ 5,00!\n🏡 Se preferir retirar pessoalmente, a retirada é 100% gratuita com horário combinado pelo WhatsApp.\n✨ Acima do raio de 2km, consulte frete especial diretamente com as Sisters no WhatsApp.',
+  faq: [
+    { id: 'faq-1', question: '🧺 As pecinhas são higienizadas?', answer: 'Sim! Cada roupitcha passa por lavagem com sabão neutro hipoalergênico e vaporização antes de ir para a vitrine. Os calçados e brinquedos também são higienizados com carinho e cheirinho de amor.' },
+    { id: 'faq-2', question: '🛵 Como funciona a entrega e o raio de 2km?', answer: 'Entregamos com motinho com taxa fixa de apenas R$ 5,00 para bairros a até 2km do nosso brechó! Se preferir, a retirada no local é 100% gratuita com horário combinado.' },
+    { id: 'faq-3', question: '💳 Quais são as formas de pagamento?', answer: 'Trabalhamos com PIX direto para a chave oficial das Sisters ou pagamento em dinheiro na entrega/retirada. Você confere tudo certinho antes de pagar!' },
+    { id: 'faq-4', question: '🏷️ As peças são novas ou usadas?', answer: 'Trabalhamos com achadinhos selecionados a dedo: peças novas com etiqueta, peças usadas apenas 1 vez (para ensaios/festas) e peças em ótimo estado de conservação sem nenhuma avaria.' }
+  ],
+  stories: {
+    welcome: {
+      id: 'welcome',
+      title: 'Oi, bem-vindo ao Brechó Sisters! 💕',
+      text: 'Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀',
+      media: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85'
+    },
+    care: {
+      id: 'care',
+      title: 'Higienização com Cheirinho de Amor 🧼',
+      text: 'Cada roupitcha que entra no nosso brechó é cuidadosamente lavada com sabão hipoalergênico e passada a vapor. É pegar e já vestir nas crianças!',
+      media: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=85'
+    },
+    delivery: {
+      id: 'delivery',
+      title: 'Entregamos na sua Porta (Raio até 2km) 🛵',
+      text: 'Mora pertinho da gente? Entregamos com taxa fixa de R$ 5,00 no raio de até 2km. Se preferir, pode retirar com a gente gratuitamente!',
+      media: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=800&q=85'
+    },
+    garimpo: {
+      id: 'garimpo',
+      title: 'Achadinhos Únicos da Semana ✨',
+      text: 'Temos Carter’s, Hering, Nike, Klin e brinquedos educativos. Como cada peça é única, se você amou, garanta rápido na sacolinha!',
+      media: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=85'
+    }
+  }
 };
 
 const DEFAULT_PRODUCTS = [
@@ -148,6 +180,14 @@ const AppStorage = {
       cfg.deliveryRules = cfg.deliveryRules.replace(/5km/g, '2km');
       localStorage.setItem('brecho_sisters_config', JSON.stringify(cfg));
     }
+    if (!cfg.faq || !Array.isArray(cfg.faq) || cfg.faq.length === 0) {
+      cfg.faq = [...DEFAULT_CONFIG.faq];
+      localStorage.setItem('brecho_sisters_config', JSON.stringify(cfg));
+    }
+    if (!cfg.stories || typeof cfg.stories !== 'object' || Object.keys(cfg.stories).length === 0) {
+      cfg.stories = { ...DEFAULT_CONFIG.stories };
+      localStorage.setItem('brecho_sisters_config', JSON.stringify(cfg));
+    }
     return cfg;
   },
   saveConfig(cfg) {
@@ -236,6 +276,24 @@ function initUI() {
   if (waLink) {
     const cleanPhone = (appConfig.whatsapp || '5511987654321').replace(/\D/g, '');
     waLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Olá Sisters! Estou visitando o Brechó e gostaria de tirar uma dúvida sobre as pecinhas 💕')}`;
+  }
+
+  // Renderiza perguntas e respostas dinâmicas (FAQ)
+  renderFAQ();
+
+  // Sincroniza foto/capa do vídeo de boas-vindas na Central de Dúvidas
+  const welcomeMedia = (appConfig.stories && appConfig.stories.welcome && appConfig.stories.welcome.media) || appConfig.videoUrl;
+  const helpImg = document.getElementById('help-video-media-img');
+  if (helpImg && welcomeMedia && !isVideoMedia(welcomeMedia)) {
+    helpImg.src = welcomeMedia;
+  }
+  const helpCaptionTitle = document.getElementById('help-caption-title');
+  if (helpCaptionTitle && appConfig.stories && appConfig.stories.welcome) {
+    helpCaptionTitle.textContent = appConfig.stories.welcome.title;
+  }
+  const helpCaptionText = document.getElementById('help-caption-text');
+  if (helpCaptionText) {
+    helpCaptionText.textContent = appConfig.welcomeMsg || (appConfig.stories && appConfig.stories.welcome && appConfig.stories.welcome.text);
   }
 
   updateFavBadges();
@@ -1171,12 +1229,14 @@ function setupAdminEvents() {
     }
   });
 
-  // Alternar abas do Admin (Pais, Pedidos, Produtos, Config)
+  // Alternar abas do Admin (Pais, Pedidos, Produtos, Config, FAQ, Stories)
   const tabBtns = [
     { btn: 'tab-btn-parents', content: 'admin-tab-parents-content' },
     { btn: 'tab-btn-orders', content: 'admin-tab-orders-content' },
     { btn: 'tab-btn-products', content: 'admin-tab-products-content' },
-    { btn: 'tab-btn-config', content: 'admin-tab-config-content' }
+    { btn: 'tab-btn-config', content: 'admin-tab-config-content' },
+    { btn: 'tab-btn-faq', content: 'admin-tab-faq-content' },
+    { btn: 'tab-btn-stories', content: 'admin-tab-stories-content' }
   ];
 
   tabBtns.forEach(({ btn, content }) => {
@@ -1194,6 +1254,8 @@ function setupAdminEvents() {
       if (cEl) cEl.style.display = 'block';
       if (btn === 'tab-btn-parents') renderParentsDashboard();
       if (btn === 'tab-btn-orders') renderOrdersList();
+      if (btn === 'tab-btn-faq') renderAdminFAQList();
+      if (btn === 'tab-btn-stories') renderAdminStoriesList();
     });
   });
 
@@ -1228,6 +1290,65 @@ function setupAdminEvents() {
     saveConfigFromForm();
   });
 
+  // Alterar Senha de Gestão
+  safeOn('btn-change-admin-pwd', 'click', changeAdminPassword);
+
+  // Pré-visualizar vídeo configurado
+  safeOn('btn-preview-video-cfg', 'click', () => {
+    const vUrl = document.getElementById('cfg-video-url').value.trim();
+    if (!vUrl) {
+      alert('Preencha a URL do vídeo/foto primeiro.');
+      return;
+    }
+    openStoryPreviewDirect('Vídeo de Boas-Vindas', document.getElementById('cfg-welcome-msg').value, vUrl);
+  });
+
+  // Eventos de FAQ no Admin
+  safeOn('btn-show-add-faq', 'click', () => {
+    const form = document.getElementById('form-faq');
+    if (form) form.reset();
+    const idEl = document.getElementById('faq-form-id');
+    if (idEl) idEl.value = '';
+    const titleEl = document.getElementById('form-faq-title');
+    if (titleEl) titleEl.textContent = 'Nova Dúvida 💬';
+    if (form) form.style.display = 'block';
+  });
+
+  safeOn('btn-cancel-faq', 'click', () => {
+    const form = document.getElementById('form-faq');
+    if (form) form.style.display = 'none';
+  });
+
+  safeOn('form-faq', 'submit', (e) => {
+    e.preventDefault();
+    saveFAQFromForm();
+  });
+
+  // Eventos de Stories no Admin
+  safeOn('btn-cancel-story', 'click', () => {
+    const form = document.getElementById('form-story');
+    if (form) form.style.display = 'none';
+  });
+
+  safeOn('btn-test-story-media', 'click', () => {
+    const media = document.getElementById('story-form-media').value.trim();
+    const title = document.getElementById('story-form-title').value.trim() || 'Teste de Story';
+    const text = document.getElementById('story-form-text').value.trim() || 'Prévia do story...';
+    if (!media) {
+      alert('Digite o link da mídia primeiro.');
+      return;
+    }
+    openStoryPreviewDirect(title, text, media);
+  });
+
+  safeOn('form-story', 'submit', (e) => {
+    e.preventDefault();
+    saveStoryFromForm();
+  });
+
+  // Alternar som no Player de Story
+  safeOn('btn-story-sound', 'click', toggleStorySound);
+
   // Buscar coordenadas do endereço da vendedora automaticamente
   safeOn('btn-get-seller-coords', 'click', async () => {
     const addrInput = document.getElementById('cfg-address');
@@ -1261,6 +1382,8 @@ function loadAdminData() {
   renderParentsDashboard();
   renderOrdersList();
   renderAdminProductsList();
+  renderAdminFAQList();
+  renderAdminStoriesList();
 
   // Carrega campos de configuração
   document.getElementById('cfg-whatsapp').value = appConfig.whatsapp || '';
@@ -1645,64 +1768,156 @@ function showToast(message, icon = '✨') {
 // STORIES & VÍDEOS DE BOAS-VINDAS DAS SISTERS
 // ============================================================================
 
-const STORIES_DATA = {
-  welcome: {
-    title: 'Oi, bem-vindo ao Brechó Sisters! 💕',
-    text: 'Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀',
-    media: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85'
-  },
-  care: {
-    title: 'Higienização com Cheirinho de Amor 🧼',
-    text: 'Cada roupitcha que entra no nosso brechó é cuidadosamente lavada com sabão hipoalergênico e passada a vapor. É pegar e já vestir nas crianças!',
-    media: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=800&q=85'
-  },
-  delivery: {
-    title: 'Entregamos na sua Porta (Raio até 2km) 🛵',
-    text: 'Mora pertinho da gente? Entregamos com taxa fixa de R$ 5,00 no raio de até 2km. Se preferir, pode retirar com a gente gratuitamente!',
-    media: 'https://images.unsplash.com/photo-1526367790999-0150786686a2?auto=format&fit=crop&w=800&q=85'
-  },
-  garimpo: {
-    title: 'Achadinhos Únicos da Semana ✨',
-    text: 'Temos Carter’s, Hering, Nike, Klin e brinquedos educativos. Como cada peça é única, se você amou, garanta rápido na sacolinha!',
-    media: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=85'
-  }
-};
+// Detecta se a URL é de um vídeo real (MP4, WebM, etc.)
+function isVideoMedia(url) {
+  if (!url) return false;
+  const clean = url.split('?')[0].toLowerCase();
+  return clean.endsWith('.mp4') || clean.endsWith('.webm') || clean.endsWith('.ogg') || clean.endsWith('.mov') || url.startsWith('data:video/');
+}
 
 let storyTimer = null;
+let isStoryMuted = true;
+
+function toggleStorySound() {
+  const video = document.getElementById('story-media-video');
+  const btn = document.getElementById('btn-story-sound');
+  if (!video || !btn) return;
+  isStoryMuted = !isStoryMuted;
+  video.muted = isStoryMuted;
+  btn.textContent = isStoryMuted ? '🔇' : '🔊';
+}
+
+function getStoriesData() {
+  return appConfig.stories || DEFAULT_CONFIG.stories;
+}
 
 function openStory(type) {
-  const story = STORIES_DATA[type];
+  const stories = getStoriesData();
+  const story = stories[type] || stories['welcome'];
   if (!story) return;
 
   const modal = document.getElementById('modal-story-view');
   const title = document.getElementById('story-caption-title');
   const text = document.getElementById('story-caption-text');
   const img = document.getElementById('story-media-img');
+  const video = document.getElementById('story-media-video');
   const fill = document.getElementById('story-progress-fill');
+  const soundBtn = document.getElementById('btn-story-sound');
+
+  if (!modal || !title || !text) return;
 
   title.textContent = story.title;
   text.textContent = story.text;
-  img.src = story.media;
+
+  const isVid = isVideoMedia(story.media);
+
+  if (isVid && video) {
+    if (img) img.style.display = 'none';
+    video.style.display = 'block';
+    video.src = story.media;
+    video.muted = isStoryMuted;
+    video.currentTime = 0;
+    video.play().catch(() => {});
+    if (soundBtn) {
+      soundBtn.style.display = 'flex';
+      soundBtn.textContent = isStoryMuted ? '🔇' : '🔊';
+    }
+  } else {
+    if (video) {
+      video.pause();
+      video.style.display = 'none';
+    }
+    if (img) {
+      img.style.display = 'block';
+      img.src = story.media;
+    }
+    if (soundBtn) soundBtn.style.display = 'none';
+  }
 
   fill.style.width = '0%';
   fill.style.transition = 'none';
 
   modal.classList.add('active');
 
+  const durationMs = isVid ? 12000 : 7000;
+
   setTimeout(() => {
-    fill.style.transition = 'width 6s linear';
+    fill.style.transition = `width ${durationMs / 1000}s linear`;
     fill.style.width = '100%';
   }, 50);
 
   if (storyTimer) clearTimeout(storyTimer);
   storyTimer = setTimeout(() => {
     closeStory();
-  }, 6100);
+  }, durationMs + 100);
+}
+
+function openStoryPreviewDirect(customTitle, customText, mediaUrl) {
+  const modal = document.getElementById('modal-story-view');
+  const title = document.getElementById('story-caption-title');
+  const text = document.getElementById('story-caption-text');
+  const img = document.getElementById('story-media-img');
+  const video = document.getElementById('story-media-video');
+  const fill = document.getElementById('story-progress-fill');
+  const soundBtn = document.getElementById('btn-story-sound');
+
+  if (!modal || !title || !text) return;
+
+  title.textContent = customTitle || 'Prévia das Sisters ✨';
+  text.textContent = customText || 'Mensagem do vídeo...';
+
+  const isVid = isVideoMedia(mediaUrl);
+
+  if (isVid && video) {
+    if (img) img.style.display = 'none';
+    video.style.display = 'block';
+    video.src = mediaUrl;
+    video.muted = isStoryMuted;
+    video.currentTime = 0;
+    video.play().catch(() => {});
+    if (soundBtn) {
+      soundBtn.style.display = 'flex';
+      soundBtn.textContent = isStoryMuted ? '🔇' : '🔊';
+    }
+  } else {
+    if (video) {
+      video.pause();
+      video.style.display = 'none';
+    }
+    if (img) {
+      img.style.display = 'block';
+      img.src = mediaUrl;
+    }
+    if (soundBtn) soundBtn.style.display = 'none';
+  }
+
+  fill.style.width = '0%';
+  fill.style.transition = 'none';
+
+  modal.classList.add('active');
+
+  const durationMs = isVid ? 12000 : 7000;
+
+  setTimeout(() => {
+    fill.style.transition = `width ${durationMs / 1000}s linear`;
+    fill.style.width = '100%';
+  }, 50);
+
+  if (storyTimer) clearTimeout(storyTimer);
+  storyTimer = setTimeout(() => {
+    closeStory();
+  }, durationMs + 100);
 }
 
 function closeStory() {
   const modal = document.getElementById('modal-story-view');
-  modal.classList.remove('active');
+  if (modal) modal.classList.remove('active');
+  const video = document.getElementById('story-media-video');
+  if (video) {
+    video.pause();
+    video.removeAttribute('src');
+    video.load();
+  }
   if (storyTimer) clearTimeout(storyTimer);
 }
 
@@ -1716,35 +1931,223 @@ if (btnCloseStory) btnCloseStory.addEventListener('click', closeStory);
 
 /**
  * Abre o Vídeo/Apresentação de Boas-Vindas das Sisters
- * (Disparado pelo botão pílula do Header)
+ * (Disparado pelo botão do Header e pelo banner na Central de Dúvidas)
  */
 function openSistersWelcomeVideo() {
-  const modal = document.getElementById('modal-story-view');
-  const title = document.getElementById('story-caption-title');
-  const text = document.getElementById('story-caption-text');
-  const img = document.getElementById('story-media-img');
-  const fill = document.getElementById('story-progress-fill');
+  openStory('welcome');
+}
 
-  if (!modal) return;
+// ============================================================================
+// GESTÃO DINÂMICA DE FAQ (PERGUNTAS FREQUENTES)
+// ============================================================================
 
-  title.textContent = 'Oi, bem-vindo ao Brechó Sisters! 💕';
-  text.textContent = appConfig.welcomeMsg || 'Todas as nossas pecinhas, tênis e brinquedos são higienizados com carinho e prontos para novas histórias. Escolha na sacolinha e fale com a gente no WhatsApp! 🎀';
-  img.src = appConfig.videoUrl || 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=85';
+function renderFAQ() {
+  const container = document.getElementById('faq-accordion-list');
+  if (!container) return;
+  const faqs = appConfig.faq || DEFAULT_CONFIG.faq;
+  container.innerHTML = '';
 
-  fill.style.width = '0%';
-  fill.style.transition = 'none';
+  faqs.forEach((item, index) => {
+    const details = document.createElement('details');
+    details.className = 'faq-item';
+    if (index === 0) details.setAttribute('open', '');
+    details.innerHTML = `
+      <summary class="faq-question">${item.question}</summary>
+      <p class="faq-answer">${item.answer.replace(/\n/g, '<br>')}</p>
+    `;
+    container.appendChild(details);
+  });
+}
 
-  modal.classList.add('active');
+function renderAdminFAQList() {
+  const container = document.getElementById('admin-faq-list');
+  if (!container) return;
+  const faqs = appConfig.faq || [];
+  container.innerHTML = '';
 
-  setTimeout(() => {
-    fill.style.transition = 'width 7s linear';
-    fill.style.width = '100%';
-  }, 50);
+  if (faqs.length === 0) {
+    container.innerHTML = '<div style="text-align:center; padding:16px; color:#A0AEC0; font-size:0.85rem;">Nenhuma dúvida cadastrada ainda.</div>';
+    return;
+  }
 
-  if (storyTimer) clearTimeout(storyTimer);
-  storyTimer = setTimeout(() => {
-    closeStory();
-  }, 7100);
+  faqs.forEach(faq => {
+    const card = document.createElement('div');
+    card.className = 'admin-faq-item-card';
+    card.innerHTML = `
+      <div class="admin-faq-card-header">
+        <span class="admin-faq-card-q">${faq.question}</span>
+        <div class="admin-actions-btns">
+          <button type="button" class="btn-admin-action" style="background:#E2CBF7;" onclick="editFAQItem('${faq.id}')">✏️</button>
+          <button type="button" class="btn-admin-action" style="background:#FF7675; color:#FFF;" onclick="deleteFAQItem('${faq.id}')">🗑️</button>
+        </div>
+      </div>
+      <div class="admin-faq-card-a">${faq.answer}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function editFAQItem(id) {
+  const item = (appConfig.faq || []).find(f => f.id === id);
+  if (!item) return;
+
+  document.getElementById('faq-form-id').value = item.id;
+  document.getElementById('faq-form-question').value = item.question;
+  document.getElementById('faq-form-answer').value = item.answer;
+  document.getElementById('form-faq-title').textContent = 'Editar Dúvida 💬';
+  document.getElementById('form-faq').style.display = 'block';
+  document.getElementById('form-faq').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteFAQItem(id) {
+  if (confirm('Deseja realmente excluir esta dúvida frequente?')) {
+    appConfig.faq = (appConfig.faq || []).filter(f => f.id !== id);
+    AppStorage.saveConfig(appConfig);
+    renderAdminFAQList();
+    renderFAQ();
+    showToast('Dúvida excluída com sucesso!', '🗑️');
+  }
+}
+
+function saveFAQFromForm() {
+  const id = document.getElementById('faq-form-id').value;
+  const question = document.getElementById('faq-form-question').value.trim();
+  const answer = document.getElementById('faq-form-answer').value.trim();
+
+  if (!question || !answer) {
+    alert('Preencha a pergunta e a resposta.');
+    return;
+  }
+
+  if (!appConfig.faq) appConfig.faq = [];
+
+  if (id) {
+    const idx = appConfig.faq.findIndex(f => f.id === id);
+    if (idx > -1) {
+      appConfig.faq[idx] = { id, question, answer };
+    }
+  } else {
+    appConfig.faq.push({
+      id: 'faq-' + Date.now(),
+      question,
+      answer
+    });
+  }
+
+  AppStorage.saveConfig(appConfig);
+  renderAdminFAQList();
+  renderFAQ();
+  document.getElementById('form-faq').style.display = 'none';
+  showToast('Dúvida salva com sucesso!', '✨');
+}
+
+// ============================================================================
+// GESTÃO DINÂMICA DE STORIES DA SEMANA
+// ============================================================================
+
+function renderAdminStoriesList() {
+  const container = document.getElementById('admin-stories-list');
+  if (!container) return;
+  const stories = appConfig.stories || DEFAULT_CONFIG.stories;
+  container.innerHTML = '';
+
+  Object.entries(stories).forEach(([key, story]) => {
+    const row = document.createElement('div');
+    row.className = 'admin-story-row';
+    const isVid = isVideoMedia(story.media);
+    row.innerHTML = `
+      <div class="admin-story-meta">
+        ${isVid ? `
+          <div class="admin-story-thumb" style="display:flex;align-items:center;justify-content:center;background:#2D3436;color:#FFF;font-size:1.1rem;" title="Vídeo">🎬</div>
+        ` : `
+          <img src="${story.media}" alt="${story.title}" class="admin-story-thumb" onerror="this.src='icon.svg'">
+        `}
+        <div>
+          <strong style="font-size: 0.85rem; display:block; color:#2D3436;">${story.title}</strong>
+          <span style="font-size: 0.72rem; color: #636E72;">
+            ${(story.text || '').substring(0, 52)}...
+          </span>
+        </div>
+      </div>
+      <div class="admin-actions-btns">
+        <button type="button" class="btn-admin-action" style="background:#B2E2F8;" onclick="openStory('${key}')">▶ Ver</button>
+        <button type="button" class="btn-admin-action" style="background:#E2CBF7;" onclick="editStoryAdmin('${key}')">✏️</button>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function editStoryAdmin(id) {
+  const stories = appConfig.stories || DEFAULT_CONFIG.stories;
+  const story = stories[id];
+  if (!story) return;
+
+  document.getElementById('story-form-id').value = id;
+  document.getElementById('story-form-title').value = story.title;
+  document.getElementById('story-form-text').value = story.text;
+  document.getElementById('story-form-media').value = story.media;
+  document.getElementById('form-story-title').textContent = `Editar: ${story.title} ✨`;
+  document.getElementById('form-story').style.display = 'block';
+  document.getElementById('form-story').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function saveStoryFromForm() {
+  const id = document.getElementById('story-form-id').value;
+  const title = document.getElementById('story-form-title').value.trim();
+  const text = document.getElementById('story-form-text').value.trim();
+  const media = document.getElementById('story-form-media').value.trim();
+
+  if (!title || !text || !media) {
+    alert('Preencha todos os campos do story.');
+    return;
+  }
+
+  if (!appConfig.stories) appConfig.stories = { ...DEFAULT_CONFIG.stories };
+  appConfig.stories[id] = { id, title, text, media };
+
+  // Se for o de boas-vindas, sincroniza também os campos globais de vídeo
+  if (id === 'welcome') {
+    appConfig.videoUrl = media;
+    appConfig.welcomeMsg = text;
+    const cfgVideo = document.getElementById('cfg-video-url');
+    if (cfgVideo) cfgVideo.value = media;
+    const cfgMsg = document.getElementById('cfg-welcome-msg');
+    if (cfgMsg) cfgMsg.value = text;
+  }
+
+  AppStorage.saveConfig(appConfig);
+  renderAdminStoriesList();
+  initUI();
+  document.getElementById('form-story').style.display = 'none';
+  showToast('Story atualizado com carinho!', '💖');
+}
+
+// ============================================================================
+// SEGURANÇA & ALTERAÇÃO DE SENHA DO ADMIN
+// ============================================================================
+
+async function changeAdminPassword() {
+  const newPwd = document.getElementById('cfg-new-password').value;
+  const confirmPwd = document.getElementById('cfg-confirm-password').value;
+
+  if (!newPwd || newPwd.length < 4) {
+    alert('A nova senha deve ter pelo menos 4 caracteres.');
+    return;
+  }
+  if (newPwd !== confirmPwd) {
+    alert('A confirmação da nova senha não confere. Digite a mesma senha nos dois campos.');
+    return;
+  }
+
+  const newHash = await sha256Hex(newPwd);
+  appConfig.adminPasswordHash = newHash;
+  delete appConfig.adminPassword; // Remove senha em texto plano legada caso existisse
+  AppStorage.saveConfig(appConfig);
+
+  document.getElementById('cfg-new-password').value = '';
+  document.getElementById('cfg-confirm-password').value = '';
+  showToast('Senha do painel alterada com sucesso!', '🔐');
 }
 
 /**
@@ -1979,6 +2382,11 @@ window.openHelpCenterModal = openHelpCenterModal;
 window.closeHelpCenterModal = closeHelpCenterModal;
 window.shareShop = shareShop;
 window.sharePiece = sharePiece;
+window.editFAQItem = editFAQItem;
+window.deleteFAQItem = deleteFAQItem;
+window.editStoryAdmin = editStoryAdmin;
+window.openStory = openStory;
+window.openStoryPreviewDirect = openStoryPreviewDirect;
 
 // ============================================================================
 // MINI-EDITOR DE FOTOS (CROPPER 1:1, PAN, ZOOM & CONVERSOR WEBP RETINA)

@@ -1063,24 +1063,34 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   border-bottom: 2px solid var(--border-soft);
   padding-bottom: 8px;
   margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.admin-tab-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .admin-tab-btn {
-  flex: 1;
-  padding: 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  padding: 8px 14px;
   background: none;
   border: none;
   font-family: 'Fredoka', cursive;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--text-muted);
   border-radius: var(--radius-sm);
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .admin-tab-btn.active {
   background: var(--pastel-purple);
   color: #4A154B;
   font-weight: 700;
+  box-shadow: 0 2px 8px rgba(162, 155, 254, 0.25);
 }
 
 .admin-form-group {
@@ -1561,12 +1571,96 @@ h1, h2, h3, h4, .brand-title, .btn-primary, .price-tag {
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.btn-story-sound {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: rgba(0, 0, 0, 0.5);
+  color: #FFF;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease;
+}
+
+.btn-story-sound:active {
+  transform: scale(0.92);
 }
 
 .story-media-content {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  background: #000;
+}
+
+/* Cards de FAQ no Admin */
+.admin-faq-item-card {
+  background: #FDFBF7;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-faq-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.admin-faq-card-q {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.25;
+}
+
+.admin-faq-card-a {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+/* Cards de Stories no Admin */
+.admin-story-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #FDFBF7;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  margin-bottom: 8px;
+}
+
+.admin-story-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.admin-story-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #E2E8F0;
 }
 
 .story-caption-overlay {
