@@ -220,6 +220,13 @@ const AppStorage = {
   },
   saveFavorites(favs) {
     localStorage.setItem('brecho_sisters_favorites', JSON.stringify(favs));
+  },
+  getCustomer() {
+    const data = localStorage.getItem('brecho_sisters_customer');
+    return data ? JSON.parse(data) : {};
+  },
+  saveCustomer(cust) {
+    localStorage.setItem('brecho_sisters_customer', JSON.stringify(cust));
   }
 };
 
@@ -239,12 +246,120 @@ let cartItems = AppStorage.getCart();
 let favoritesList = AppStorage.getFavorites();
 let analyticsData = AppStorage.getAnalytics();
 
-// Estado atual de entrega/geolocalização
-let currentDeliveryOption = 'pickup'; // 'pickup' ou 'delivery'
-let customerCoords = null; // { lat, lng }
+// Estado atual de entrega/geolocalização e perfil salvo do cliente
+const initialCustomer = AppStorage.getCustomer();
+let currentDeliveryOption = initialCustomer.deliveryOption || 'pickup';
+let customerCoords = initialCustomer.coords || null;
 let calculatedDistanceKm = null;
 let isWithinRadius = false;
-let customerAddressText = '';
+let customerAddressText = initialCustomer.addressText || '';
+
+// ============================================================================
+// GERENCIADOR DE HISTÓRICO MOBILE (BOTÃO VOLTAR DO CELULAR / SWIPE / POPSTATE)
+// ============================================================================
+const ModalHistoryManager = {
+  stack: [],
+  isProgrammaticBack: false,
+  push(modalId) {
+    this.stack = this.stack.filter(m => m !== modalId);
+    this.stack.push(modalId);
+    history.pushState({ modalId, timestamp: Date.now() }, '');
+  },
+  close(modalId, fromPopstate = false) {
+    this.stack = this.stack.filter(m => m !== modalId);
+    if (!fromPopstate && history.state && history.state.modalId === modalId) {
+      this.isProgrammaticBack = true;
+      history.back();
+    }
+  },
+  handlePopState(e) {
+    if (this.isProgrammaticBack) {
+      this.isProgrammaticBack = false;
+      return;
+    }
+    if (this.stack.length > 0) {
+      const topModalId = this.stack.pop();
+      if (topModalId === 'modal-cart') closeCartModal(true);
+      else if (topModalId === 'modal-product-details') closeDetailsModal(true);
+      else if (topModalId === 'modal-favorites') closeFavoritesModal(true);
+      else if (topModalId === 'modal-help-center') closeHelpCenterModal(true);
+      else if (topModalId === 'modal-delivery-rules') closeDeliveryRulesModal(true);
+      else if (topModalId === 'modal-story-view') closeStory(true);
+      else if (topModalId === 'modal-cropper-view' && typeof CropperStudio !== 'undefined') CropperStudio.close(true);
+      else if (topModalId === 'modal-admin') closeAdminModal(true);
+    }
+  }
+};
+window.addEventListener('popstate', (e) => ModalHistoryManager.handlePopState(e));
+
+function setupModalOverlayClicks() {
+  const overlays = [
+    { id: 'modal-product-details', closer: () => closeDetailsModal() },
+    { id: 'modal-cart', closer: () => closeCartModal() },
+    { id: 'modal-admin', closer: () => closeAdminModal() },
+    { id: 'modal-favorites', closer: () => closeFavoritesModal() },
+    { id: 'modal-help-center', closer: () => closeHelpCenterModal() },
+    { id: 'modal-delivery-rules', closer: () => closeDeliveryRulesModal() },
+    { id: 'modal-story-view', closer: () => closeStory() }
+  ];
+
+  overlays.forEach(({ id, closer }) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('click', (e) => {
+        if (e.target === el) {
+          closer();
+        }
+      });
+    }
+  });
+}
+
+// ============================================================================
+// AUTO-SAVE & RESTAURAÇÃO CONTÍNUA DOS DADOS DA CLIENTE (NOME, TEL, ENDEREÇO)
+// ============================================================================
+function autoSaveCustomerForm() {
+  const cust = {
+    name: (document.getElementById('cust-name')?.value || '').trim(),
+    phone: (document.getElementById('cust-phone')?.value || '').trim(),
+    cpf: (document.getElementById('cust-cpf')?.value || '').trim(),
+    cep: (document.getElementById('cust-cep')?.value || '').trim(),
+    street: (document.getElementById('cust-street')?.value || '').trim(),
+    number: (document.getElementById('cust-number')?.value || '').trim(),
+    complement: (document.getElementById('cust-complement')?.value || '').trim(),
+    bairro: (document.getElementById('cust-bairro')?.value || '').trim(),
+    deliveryOption: currentDeliveryOption,
+    coords: customerCoords,
+    addressText: customerAddressText
+  };
+  AppStorage.saveCustomer(cust);
+}
+
+function restoreCustomerForm() {
+  const cust = AppStorage.getCustomer();
+  if (!cust || Object.keys(cust).length === 0) return;
+
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val && !el.value) el.value = val;
+  };
+
+  setVal('cust-name', cust.name);
+  setVal('cust-phone', cust.phone);
+  setVal('cust-cpf', cust.cpf);
+  setVal('cust-cep', cust.cep);
+  setVal('cust-street', cust.street);
+  setVal('cust-number', cust.number);
+  setVal('cust-complement', cust.complement);
+  setVal('cust-bairro', cust.bairro);
+
+  if (cust.coords && !customerCoords) {
+    customerCoords = cust.coords;
+  }
+  if (cust.addressText && !customerAddressText) {
+    customerAddressText = cust.addressText;
+  }
+}
 
 // ============================================================================
 // INICIALIZAÇÃO & EVENT LISTENERS
@@ -255,7 +370,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProducts();
   updateCartBadges();
   setupEventListeners();
-  selectDeliveryOption('pickup');
+  setupModalOverlayClicks();
+  restoreCustomerForm();
+  selectDeliveryOption(currentDeliveryOption);
 });
 
 function initUI() {
@@ -566,6 +683,7 @@ function setupInputMasks() {
             document.getElementById('cust-street').value = data.logradouro || '';
             document.getElementById('cust-bairro').value = data.bairro || '';
             document.getElementById('cust-number').focus();
+            autoSaveCustomerForm();
             showToast('Endereço preenchido! Digite o número da casa.', '✨');
           } else {
             showToast('CEP não encontrado. Digite a rua manualmente.', '⚠️');
@@ -592,6 +710,15 @@ function setupInputMasks() {
       }
     });
   }
+
+  // Ouvintes para auto-save de todos os campos de cliente em tempo real
+  ['cust-name', 'cust-phone', 'cust-cpf', 'cust-cep', 'cust-street', 'cust-number', 'cust-bairro', 'cust-complement'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', autoSaveCustomerForm);
+      el.addEventListener('change', autoSaveCustomerForm);
+    }
+  });
 }
 
 function getActiveCategory() {
@@ -622,13 +749,22 @@ function setActiveBottomNav(id) {
 }
 
 function closeAllModais() {
-  closeDetailsModal();
-  closeCartModal();
-  closeAdminModal();
-  if (typeof closeStory === 'function') closeStory();
-  if (typeof closeDeliveryRulesModal === 'function') closeDeliveryRulesModal();
-  if (typeof closeFavoritesModal === 'function') closeFavoritesModal();
-  if (typeof closeHelpCenterModal === 'function') closeHelpCenterModal();
+  closeDetailsModal(true);
+  closeCartModal(true);
+  closeAdminModal(true);
+  if (typeof closeStory === 'function') closeStory(true);
+  if (typeof closeDeliveryRulesModal === 'function') closeDeliveryRulesModal(true);
+  if (typeof closeFavoritesModal === 'function') closeFavoritesModal(true);
+  if (typeof closeHelpCenterModal === 'function') closeHelpCenterModal(true);
+  if (typeof CropperStudio !== 'undefined' && CropperStudio.close) CropperStudio.close(true);
+
+  while (ModalHistoryManager.stack.length > 0) {
+    ModalHistoryManager.stack.pop();
+    if (history.state && history.state.modalId) {
+      ModalHistoryManager.isProgrammaticBack = true;
+      history.back();
+    }
+  }
 }
 
 // ============================================================================
@@ -788,10 +924,13 @@ function openProductDetails(id) {
   `;
 
   modal.classList.add('active');
+  ModalHistoryManager.push('modal-product-details');
 }
 
-function closeDetailsModal() {
-  document.getElementById('modal-product-details').classList.remove('active');
+function closeDetailsModal(fromPopstate = false) {
+  const modal = document.getElementById('modal-product-details');
+  if (modal) modal.classList.remove('active');
+  ModalHistoryManager.close('modal-product-details', fromPopstate);
 }
 
 // ============================================================================
@@ -844,24 +983,31 @@ function updateCartBadges() {
 }
 
 function openCartModal() {
+  restoreCustomerForm();
   renderCartModal();
   document.getElementById('modal-cart').classList.add('active');
   setActiveBottomNav('nav-cart');
+  ModalHistoryManager.push('modal-cart');
 }
 
-function closeCartModal() {
-  document.getElementById('modal-cart').classList.remove('active');
+function closeCartModal(fromPopstate = false) {
+  const modal = document.getElementById('modal-cart');
+  if (modal) modal.classList.remove('active');
   setActiveBottomNav('nav-home');
+  ModalHistoryManager.close('modal-cart', fromPopstate);
 }
 
 function renderCartModal() {
   const list = document.getElementById('cart-items-list');
   const wrap = document.getElementById('cart-content-wrap');
   const empty = document.getElementById('cart-empty-state');
+  const noticeEl = document.getElementById('cart-unavailable-notice');
+  const btnSubmit = document.getElementById('btn-submit-whatsapp');
 
   if (cartItems.length === 0) {
     wrap.style.display = 'none';
     empty.style.display = 'block';
+    if (noticeEl) noticeEl.style.display = 'none';
     return;
   }
 
@@ -870,17 +1016,33 @@ function renderCartModal() {
   list.innerHTML = '';
 
   let subtotal = 0;
+  let hasUnavailable = false;
+  let availableCount = 0;
 
   cartItems.forEach(item => {
-    subtotal += item.price;
+    // Revalidação em tempo real de estoque único de brechó
+    const liveProd = productsList.find(p => p.id === item.id);
+    const isUnavailable = liveProd && (liveProd.status === 'vendido' || liveProd.status === 'reservado');
+
+    if (!isUnavailable) {
+      subtotal += item.price;
+      availableCount++;
+    } else {
+      hasUnavailable = true;
+    }
+
     const row = document.createElement('div');
-    row.className = 'cart-item-row';
+    row.className = `cart-item-row ${isUnavailable ? 'item-unavailable' : ''}`;
     row.innerHTML = `
-      <img src="${item.image}" alt="${item.name}" class="cart-item-img" onerror="this.src='icon.svg'">
-      <div class="cart-item-details">
-        <h4 class="cart-item-name">${item.name}</h4>
+      <div style="position: relative; width: 64px; height: 64px; flex-shrink: 0;">
+        <img src="${item.image}" alt="${item.name}" class="cart-item-img" onerror="this.src='icon.svg'" style="width: 100%; height: 100%; object-fit: cover; border-radius: var(--radius-sm); ${isUnavailable ? 'filter: grayscale(80%) opacity(0.55);' : ''}">
+        ${isUnavailable ? `<span style="position: absolute; bottom: 2px; left: 2px; background: #E53E3E; color: #FFF; font-size: 0.58rem; font-weight: 800; padding: 2px 4px; border-radius: 4px; text-transform: uppercase;">${liveProd.status === 'reservado' ? 'Reservado' : 'Esgotado'}</span>` : ''}
+      </div>
+      <div class="cart-item-details" style="${isUnavailable ? 'opacity: 0.6;' : ''}">
+        <h4 class="cart-item-name" style="${isUnavailable ? 'text-decoration: line-through; color: #718096;' : ''}">${item.name}</h4>
         <span class="cart-item-meta">${item.size} • ${formatCategory(item.category)}</span>
-        <div class="cart-item-price">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+        <div class="cart-item-price" style="${isUnavailable ? 'text-decoration: line-through; color: #A0AEC0;' : ''}">R$ ${item.price.toFixed(2).replace('.', ',')}</div>
+        ${isUnavailable ? `<div style="font-size: 0.72rem; color: #E53E3E; font-weight: 700; margin-top: 2px;">⚠️ Peça já vendida p/ outra cliente</div>` : ''}
       </div>
       <button class="btn-remove-cart" onclick="removeFromCart('${item.id}')" title="Remover">
         ✕
@@ -889,7 +1051,24 @@ function renderCartModal() {
     list.appendChild(row);
   });
 
-  // Atualiza totais
+  if (noticeEl) {
+    noticeEl.style.display = hasUnavailable ? 'block' : 'none';
+  }
+
+  // Desativa botão se todas as peças estiverem esgotadas
+  if (btnSubmit) {
+    if (availableCount === 0) {
+      btnSubmit.style.opacity = '0.5';
+      btnSubmit.style.pointerEvents = 'none';
+      btnSubmit.title = 'Todas as peças na sacola já foram vendidas';
+    } else {
+      btnSubmit.style.opacity = '1';
+      btnSubmit.style.pointerEvents = 'auto';
+      btnSubmit.title = '';
+    }
+  }
+
+  // Atualiza totais considerando apenas peças disponíveis
   document.getElementById('cart-subtotal-val').textContent = `R$ ${subtotal.toFixed(2).replace('.', ',')}`;
 
   const deliveryLine = document.getElementById('delivery-tax-line');
@@ -898,7 +1077,7 @@ function renderCartModal() {
 
   let finalTotal = subtotal;
 
-  if (currentDeliveryOption === 'delivery' && isWithinRadius) {
+  if (currentDeliveryOption === 'delivery' && isWithinRadius && availableCount > 0) {
     deliveryLine.style.display = 'flex';
     deliveryVal.textContent = `R$ ${appConfig.deliveryFee.toFixed(2).replace('.', ',')}`;
     finalTotal += appConfig.deliveryFee;
@@ -1093,6 +1272,17 @@ function submitOrderViaWhatsApp() {
     return;
   }
 
+  // Filtra apenas peças disponíveis no momento do fechamento
+  const availableItems = cartItems.filter(item => {
+    const live = productsList.find(p => p.id === item.id);
+    return !live || (live.status !== 'vendido' && live.status !== 'reservado');
+  });
+
+  if (availableItems.length === 0) {
+    showToast('Todas as peças da sacolinha já foram vendidas! Escolha outras na vitrine.', '⚠️');
+    return;
+  }
+
   const custName = document.getElementById('cust-name').value.trim();
   const custPhone = document.getElementById('cust-phone').value.trim();
   const custCpf = document.getElementById('cust-cpf').value.trim();
@@ -1123,13 +1313,16 @@ function submitOrderViaWhatsApp() {
     customerAddressText = `${street}, ${number}${complement ? ' (' + complement + ')' : ''} - ${bairro || ''} ${cep ? '[CEP: ' + cep + ']' : ''}`.trim();
   }
 
-  let subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
+  // Salva dados cadastrais da cliente para compras futuras
+  autoSaveCustomerForm();
+
+  let subtotal = availableItems.reduce((acc, item) => acc + item.price, 0);
   let total = subtotal;
 
   let msg = `🌸 *Olá meninas do Brechó Sisters!* 💖\n\n`;
   msg += `Meu nome é *${custName}* e separei estas pecinhas na minha sacolinha:\n\n`;
 
-  cartItems.forEach((item, index) => {
+  availableItems.forEach((item) => {
     msg += `• *${item.name}* (${item.size}) - R$ ${item.price.toFixed(2).replace('.', ',')}\n`;
   });
 
@@ -1174,8 +1367,8 @@ function submitOrderViaWhatsApp() {
     customerName: custName,
     customerPhone: custPhone,
     customerCpf: custCpf || '-',
-    items: cartItems.map(i => `${i.name} (${i.size})`),
-    itemsIds: cartItems.map(i => i.id),
+    items: availableItems.map(i => `${i.name} (${i.size})`),
+    itemsIds: availableItems.map(i => i.id),
     subtotal: subtotal,
     deliveryFee: currentDeliveryOption === 'delivery' && isWithinRadius ? appConfig.deliveryFee : 0,
     total: total,
@@ -1186,6 +1379,14 @@ function submitOrderViaWhatsApp() {
 
   analyticsData.orders.unshift(newOrder);
   AppStorage.saveAnalytics(analyticsData);
+
+  // Esvazia sacola e preserva cadastro da cliente
+  cartItems = [];
+  AppStorage.saveCart(cartItems);
+  updateCartBadges();
+  renderProducts(getActiveCategory(), (document.getElementById('search-input')?.value || '').trim().toLowerCase());
+  closeCartModal();
+  showToast('Pedido enviado para o WhatsApp! A sacolinha foi esvaziada.', '🎉');
 
   const cleanPhone = appConfig.whatsapp.replace(/\D/g, '');
   const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
@@ -1199,11 +1400,14 @@ function submitOrderViaWhatsApp() {
 
 function openAdminModal() {
   document.getElementById('modal-admin').classList.add('active');
+  ModalHistoryManager.push('modal-admin');
 }
 
-function closeAdminModal() {
-  document.getElementById('modal-admin').classList.remove('active');
+function closeAdminModal(fromPopstate = false) {
+  const modal = document.getElementById('modal-admin');
+  if (modal) modal.classList.remove('active');
   setActiveBottomNav('nav-home');
+  ModalHistoryManager.close('modal-admin', fromPopstate);
 }
 
 function setupAdminEvents() {
@@ -1838,6 +2042,7 @@ function openStory(type) {
   fill.style.transition = 'none';
 
   modal.classList.add('active');
+  ModalHistoryManager.push('modal-story-view');
 
   const durationMs = isVid ? 12000 : 7000;
 
@@ -1895,6 +2100,7 @@ function openStoryPreviewDirect(customTitle, customText, mediaUrl) {
   fill.style.transition = 'none';
 
   modal.classList.add('active');
+  ModalHistoryManager.push('modal-story-view');
 
   const durationMs = isVid ? 12000 : 7000;
 
@@ -1909,7 +2115,7 @@ function openStoryPreviewDirect(customTitle, customText, mediaUrl) {
   }, durationMs + 100);
 }
 
-function closeStory() {
+function closeStory(fromPopstate = false) {
   const modal = document.getElementById('modal-story-view');
   if (modal) modal.classList.remove('active');
   const video = document.getElementById('story-media-video');
@@ -1919,6 +2125,7 @@ function closeStory() {
     video.load();
   }
   if (storyTimer) clearTimeout(storyTimer);
+  ModalHistoryManager.close('modal-story-view', fromPopstate);
 }
 
 // Bind seguro dos botões de Stories
@@ -2176,11 +2383,13 @@ function openDeliveryRulesModal() {
   `;
 
   modal.classList.add('active');
+  ModalHistoryManager.push('modal-delivery-rules');
 }
 
-function closeDeliveryRulesModal() {
+function closeDeliveryRulesModal(fromPopstate = false) {
   const modal = document.getElementById('modal-delivery-rules');
   if (modal) modal.classList.remove('active');
+  ModalHistoryManager.close('modal-delivery-rules', fromPopstate);
 }
 
 // ============================================================================
@@ -2196,11 +2405,13 @@ function openHelpCenterModal() {
     waLink.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent('Olá Sisters! Estou visitando o Brechó e gostaria de tirar uma dúvida sobre as pecinhas 💕')}`;
   }
   modal.classList.add('active');
+  ModalHistoryManager.push('modal-help-center');
 }
 
-function closeHelpCenterModal() {
+function closeHelpCenterModal(fromPopstate = false) {
   const modal = document.getElementById('modal-help-center');
   if (modal) modal.classList.remove('active');
+  ModalHistoryManager.close('modal-help-center', fromPopstate);
 }
 
 // ============================================================================
@@ -2246,12 +2457,14 @@ function openFavoritesModal() {
   setActiveBottomNav('nav-favs');
   renderFavoritesModal();
   modal.classList.add('active');
+  ModalHistoryManager.push('modal-favorites');
 }
 
-function closeFavoritesModal() {
+function closeFavoritesModal(fromPopstate = false) {
   const modal = document.getElementById('modal-favorites');
   if (modal) modal.classList.remove('active');
   setActiveBottomNav('nav-home');
+  ModalHistoryManager.close('modal-favorites', fromPopstate);
 }
 
 function renderFavoritesModal() {
@@ -2486,6 +2699,7 @@ const CropperStudio = {
 
       this.imgTarget.src = imgSrc;
       this.modal.classList.add('active');
+      ModalHistoryManager.push('modal-cropper-view');
       this.fitInitial();
     };
     this.rawImage.src = imgSrc;
@@ -2529,8 +2743,9 @@ const CropperStudio = {
     this.imgTarget.style.transform = `translate(${this.posX}px, ${this.posY}px) scale(${this.scale}) rotate(${this.rotation}deg)`;
   },
 
-  close() {
+  close(fromPopstate = false) {
     this.modal.classList.remove('active');
+    ModalHistoryManager.close('modal-cropper-view', fromPopstate);
   },
 
   /**
