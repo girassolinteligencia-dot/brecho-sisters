@@ -854,18 +854,12 @@ function renderProducts(category = 'todas', query = '') {
       statusOverlay = `<div class="badge-status-sold" style="background: rgba(243, 156, 18, 0.85)">RESERVADO ✨</div>`;
     }
 
-    let photoBadge = '';
-    if (prod.images && prod.images.length > 1) {
-      photoBadge = `<span class="badge-photo-count">📸 ${prod.images.length} fotos</span>`;
-    }
-
     card.innerHTML = `
       <div class="product-thumb-wrap" onclick="openProductDetails('${prod.id}')">
         <img src="${prod.image}" alt="${prod.name}" class="product-thumb" loading="lazy" onerror="this.src='icon.svg'">
         <button type="button" class="btn-fav-card ${isFav ? 'favorited' : ''}" onclick="event.stopPropagation(); toggleFavorite('${prod.id}')" title="${isFav ? 'Remover dos favoritos' : 'Favoritar peça'}">
           ${isFav ? '❤️' : '🤍'}
         </button>
-        ${photoBadge}
         ${conditionBadge}
         <span class="badge-size">${prod.size}</span>
         ${statusOverlay}
